@@ -14,7 +14,7 @@ abstract Headers(Map<String, String>) to Map<String, String> {
 
 	@:from static function fromMap(map : Map<String, String>) : Headers {
 		var skeys = map.keys().toArray(),
-				nkeys = skeys.map(normalize);
+				nkeys = skeys.map(normalizeKey);
 		skeys.zip(nkeys).map(function(t) {
 			if(t._0 == t._1) return;
 			var v = map.get(t._0);
@@ -24,8 +24,8 @@ abstract Headers(Map<String, String>) to Map<String, String> {
 		return new Headers(map);
 	}
 
-	public static function normalize(key : String)
-		return key.underscore().dasherize().capitalizeWords();
+	public static function normalizeKey(key : String)
+		return key.trim().underscore().dasherize().capitalizeWords();
 
 	public function toString()
 		return this.tuples().pluck('${_.left}: ${_.right}').join("\n");

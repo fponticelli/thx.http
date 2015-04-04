@@ -16,6 +16,6 @@ class TestHeaders {
 		];
 
 		for(test in tests)
-			Assert.equals(test[0], Headers.normalize(test[1]));
+			Assert.equals(test[0], Headers.normalizeKey(test[1]));
 	}
 }
