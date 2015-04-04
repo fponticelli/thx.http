@@ -19,6 +19,7 @@ class TestAll {
 	}
 
 	static function register(runner : Runner) {
+		runner.addCase(new thx.http.TestRequestInfo());
 		runner.addCase(new thx.http.TestRequest());
 	}
 }

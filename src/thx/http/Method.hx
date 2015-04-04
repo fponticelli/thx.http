@@ -1,9 +1,9 @@
 package thx.http;
 
 @:enum abstract Method(String) to String {
-	var Get = "get";
-	var Post = "post";
-	var Put = "put";
-	var Delete = "delete";
+	var Get = "GET";
+	var Post = "POST";
+	var Put = "PUT";
+	var Delete = "DELETE";
 	// TODO add remaining
 }
