@@ -6,16 +6,20 @@ class RequestInfo {
 	public var method : Method;
 	public var url : Url;
 	public var headers : Headers;
+	public var version : String;
 	// TODO add body
-	public function new(method : Method, url : Url, ?headers : Headers) {
+	public function new(method : Method, url : Url, ?headers : Headers, version = "1.1") {
 		this.method = method;
 		this.url = url;
 		this.headers = null == headers ? Headers.empty() : headers;
+		this.version = version;
 	}
 
 	public function toString() {
 		var h = headers.toString(),
-				buf = ['$method $url'];
+				buf = ['$method /${url.path} ${(url.protocol).toUpperCase()}/$version'];
+		if(url.isAbsolute)
+			buf.push('Host: ${url.host}');
 		if(h != "")
 			buf.push(h);
 		return buf.join(Const.CRLF);
