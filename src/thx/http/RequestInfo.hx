@@ -18,6 +18,6 @@ class RequestInfo {
 				buf = ['$method $url'];
 		if(h != "")
 			buf.push(h);
-		return buf.join("\n");
+		return buf.join(Const.CRLF);
 	}
 }
