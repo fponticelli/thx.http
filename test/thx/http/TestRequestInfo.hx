@@ -12,8 +12,7 @@ class TestRequestInfo {
 					]);
 
 		Assert.equals(
-"GET http://localhost:6666
-Agent: thx.http.Request",
+			"GET http://localhost:6666\r\nAgent: thx.http.Request",
 			info.toString()
 		);
 	}
