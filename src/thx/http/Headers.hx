@@ -4,8 +4,10 @@ using thx.core.Arrays;
 using thx.core.Iterators;
 using thx.core.Maps;
 using thx.core.Strings;
+using thx.core.Ints;
 
 abstract Headers(Map<String, String>) to Map<String, String> {
+	static var CRLF_PATTERN = ~/\r\n|\n\r|\r|\n/mg;
 	public static function empty()
 		return new Headers(new Map());
 
@@ -29,6 +31,11 @@ abstract Headers(Map<String, String>) to Map<String, String> {
 	public static function normalizeValue(value : String, ?key : String = " ")
 		return CRLF_PATTERN.replace(value, Const.CRLF);
 
+	public static function formatValue(value : String, key : String) {
+		var len = key.length.max(1) + 2; // +2 for ": "
+		return value.replace(Const.CRLF, Const.CRLF + Strings.repeat(" ", len));
+	}
+
 	public function toString()
-		return this.tuples().pluck('${_.left}: ${_.right}').join("\n");
+		return this.tuples().pluck('${_.left}: ${formatValue(_.right, _.left)}').join("\n");
 }
