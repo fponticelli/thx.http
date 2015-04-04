@@ -6,6 +6,7 @@ using thx.core.Maps;
 using thx.core.Strings;
 using thx.core.Ints;
 
+@:forward(keys, iterator)
 abstract Headers(Map<String, String>) to Map<String, String> {
 	static var CRLF_PATTERN = ~/\r\n|\n\r|\r|\n/mg;
 	public static function empty()
@@ -24,6 +25,18 @@ abstract Headers(Map<String, String>) to Map<String, String> {
 		});
 		return new Headers(map);
 	}
+
+	public inline function exists(key : String)
+		return this.exists(normalizeKey(key));
+
+	public inline function get(key : String)
+		return this.get(normalizeKey(key));
+
+	public inline function remove(key : String)
+		return this.remove(normalizeKey(key));
+
+	public inline function set(key : String, value : String)
+		return this.set(normalizeKey(key), normalizeValue(value));
 
 	public static function normalizeKey(key : String)
 		return key.trim().underscore().dasherize().capitalizeWords();
