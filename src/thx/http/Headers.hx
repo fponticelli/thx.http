@@ -13,7 +13,6 @@ abstract Headers(Map<String, String>) to Map<String, String> {
 		this = map;
 
 	@:from static function fromMap(map : Map<String, String>) : Headers {
-		// TODO normalize keys
 		var skeys = map.keys().toArray(),
 				nkeys = skeys.map(normalize);
 		skeys.zip(nkeys).map(function(t) {
