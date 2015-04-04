@@ -1,5 +1,6 @@
 -lib thx.core
 -lib utest
+-lib abe
 -cp src
 -cp test
 -js bin/test.js
