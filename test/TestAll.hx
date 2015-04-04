@@ -2,6 +2,12 @@ import utest.Runner;
 import utest.ui.Report;
 
 class TestAll {
+	static function register(runner : Runner) {
+		runner.addCase(new thx.http.TestHeaders());
+		runner.addCase(new thx.http.TestRequestInfo());
+		runner.addCase(new thx.http.TestRequest());
+	}
+
 	static function main() {
 		abe.App.installNpmDependencies(false);
 		var app = new abe.App();
@@ -16,10 +22,5 @@ class TestAll {
 			});
 			runner.run();
 		});
-	}
-
-	static function register(runner : Runner) {
-		runner.addCase(new thx.http.TestRequestInfo());
-		runner.addCase(new thx.http.TestRequest());
 	}
 }
