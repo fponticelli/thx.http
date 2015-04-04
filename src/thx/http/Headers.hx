@@ -1,5 +1,8 @@
 package thx.http;
 
+using thx.core.Arrays;
+using thx.core.Maps;
+
 abstract Headers(Map<String, String>) to Map<String, String> {
 	public static function empty()
 		return new Headers(new Map());
@@ -12,7 +15,6 @@ abstract Headers(Map<String, String>) to Map<String, String> {
 		return new Headers(map);
 	}
 
-	public function toString() {
-
-	}
+	public function toString()
+		return this.tuples().pluck('${_.left}: ${_.right}').join("\n");
 }

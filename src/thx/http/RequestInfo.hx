@@ -14,6 +14,10 @@ class RequestInfo {
 	}
 
 	public function toString() {
-		return "";
+		var h = headers.toString(),
+				buf = ['$method $url'];
+		if(h != "")
+			buf.push(h);
+		return buf.join("\n");
 	}
 }
