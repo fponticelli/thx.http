@@ -16,8 +16,6 @@ class TestRequest {
 					done();
 				});
 
-		trace(info);
-
-		Request.create(info, handler);
+		Request.make(info, handler);
 	}
 }

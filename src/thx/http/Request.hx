@@ -3,7 +3,6 @@ package thx.http;
 import thx.core.Functions;
 
 class Request {
-	public static function create(requestInfo : RequestInfo, requestHandler : RequestHandler) : Void -> Void {
 		var req = new haxe.Http(requestInfo.url);
 		for(key in requestInfo.headers.keys())
 			req.setHeader(key, requestInfo.headers.get(key));
@@ -21,5 +20,6 @@ class Request {
 		#else
 		return req.cancel;
 		#end
+	public static function make(requestInfo : RequestInfo, requestHandler : RequestHandler) : Void -> Void {
 	}
 }
