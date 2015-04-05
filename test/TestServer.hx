@@ -1,4 +1,3 @@
-@:use()
 class TestServer implements abe.IRoute {
 	static function main() {
 		abe.App.installNpmDependencies(false);
@@ -13,5 +12,12 @@ class TestServer implements abe.IRoute {
 	@:get("/")
 	function root() {
 		response.status(200).send("OK");
+	}
+
+	@:post("/")
+	@:use(mw.BodyParser.text())
+	function bounce() {
+		trace(request.body);
+		response.status(200).send(request.body);
 	}
 }
