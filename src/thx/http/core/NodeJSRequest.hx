@@ -5,6 +5,17 @@ import js.node.Https;
 
 class NodeJSRequest {
 	public static function make(requestInfo : RequestInfo, requestHandler : RequestHandler) : Void -> Void {
+		function callback(res) {
+			var buf = "";
+			res.on("data", function(chunk) {
+				trace(Std.is(chunk, String));
+				buf += chunk;
+			});
+			res.on("end", function(_) {
+				requestHandler.statusHandler(res.statusCode, buf);
+			});
+		}
+
 		var url = requestInfo.url,
 				req = switch url.protocol {
 					case "http":
@@ -20,9 +31,7 @@ class NodeJSRequest {
 							//agent: Controls Agent behavior. When an Agent is used request will default to Connection: keep-alive. Possible values:
 							//keepAlive: {Boolean} Keep sockets around in a pool to be used by other requests in the future. Default = false
 							//keepAliveMsecs: {Integer} When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000. Only relevant if keepAlive is set to true.
-						}, function(res) {
-							requestHandler.statusHandler(res.statusCode);
-						});
+						}, callback);
 					case "https":
 						Https.request({
 							hostname: url.hostName,
@@ -36,9 +45,7 @@ class NodeJSRequest {
 							//agent: Controls Agent behavior. When an Agent is used request will default to Connection: keep-alive. Possible values:
 							//keepAlive: {Boolean} Keep sockets around in a pool to be used by other requests in the future. Default = false
 							//keepAliveMsecs: {Integer} When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000. Only relevant if keepAlive is set to true.
-						}, function(res) {
-							requestHandler.statusHandler(res.statusCode);
-						});
+						}, callback);
 					case other:
 						throw 'unexpected protocol $other';
 				}
