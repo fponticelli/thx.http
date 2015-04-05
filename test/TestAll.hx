@@ -2,25 +2,12 @@ import utest.Runner;
 import utest.ui.Report;
 
 class TestAll {
-	static function register(runner : Runner) {
+	static function main() {
+		var runner = new Runner();
 		runner.addCase(new thx.http.TestHeaders());
 		runner.addCase(new thx.http.TestRequestInfo());
 		runner.addCase(new thx.http.TestRequest());
-	}
-
-	static function main() {
-		abe.App.installNpmDependencies(false);
-		var app = new abe.App();
-		app.router.register(new TestServer());
-		var server : js.node.http.Server = null;
-		server = app.http(6666, function() {
-			var runner = new Runner();
-			register(runner);
-			Report.create(runner);
-			runner.onComplete.add(function(_) {
-				server.close();
-			});
-			runner.run();
-		});
+		Report.create(runner);
+		runner.run();
 	}
 }

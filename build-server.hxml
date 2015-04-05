@@ -1,0 +1,4 @@
+-lib abe
+-cp test
+-js bin/test-server.js
+-main TestServer

@@ -3,7 +3,7 @@
 -lib abe
 -cp src
 -cp test
--js bin/test.js
+-neko bin/test.n
 -main TestAll
 
--cmd node bin/test.js
+-cmd neko bin/test.n

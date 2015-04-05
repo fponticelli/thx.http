@@ -17,7 +17,11 @@ class RequestInfo {
 
 	public function toString() {
 		var h = headers.toString(),
-				buf = ['$method /${url.path} ${(url.protocol).toUpperCase()}/$version'];
+				path = url.path;
+
+		if(path.substring(0, 1) != "/")
+			path = '/$path';
+		var buf = ['$method $path ${url.protocol.toUpperCase()}/$version'];
 		if(url.isAbsolute)
 			buf.push('Host: ${url.host}');
 		if(h != "")
