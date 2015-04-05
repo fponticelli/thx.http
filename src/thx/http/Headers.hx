@@ -5,44 +5,53 @@ using thx.core.Iterators;
 using thx.core.Maps;
 using thx.core.Strings;
 using thx.core.Ints;
+using thx.core.Tuple;
 
-@:forward(keys, iterator)
-abstract Headers(Map<String, String>) to Map<String, String> {
-	static var CRLF_PATTERN = ~/\r\n|\n\r|\r|\n/mg;
+@:forward(iterator)
+abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
+	@:from public static function fromMap(map : Map<String, String>) : Headers
+		return map.tuples();
+
+	@:from public static function fromTuples(arr : Array<Tuple2<String, String>>) : Headers
+		return arr.map(function(t) return (t : Header));
+
 	public static function empty()
-		return new Headers(new Map());
+		return new Headers([]);
 
-	inline function new(map : Map<String, String>)
-		this = map;
+	inline function new(arr : Array<Header>)
+		this = arr;
 
-	@:from static function fromMap(map : Map<String, String>) : Headers {
-		var skeys = map.keys().toArray(),
-				nkeys = skeys.map(normalizeKey);
-		skeys.zip(nkeys).map(function(t) {
-			var v = normalizeValue(map.get(t._0));
-			map.remove(t._0);
-			map.set(t._1, v);
-		});
-		return new Headers(map);
+	public function exists(key : String) : Bool {
+		key = Header.normalizeKey(key);
+		return this.any(function(h) return h.key == key);
 	}
 
-	public inline function exists(key : String)
-		return this.exists(normalizeKey(key));
+	public function get(key : String) : String {
+		var p = getHeader(key);
+		return p == null ? null : p.value;
+	}
 
-	public inline function get(key : String)
-		return this.get(normalizeKey(key));
+	public function remove(key : String) {
+		key = Header.normalizeKey(key);
+		var p = this.find(function(h) return h.key == key);
+		return this.remove(p);
+	}
 
-	public inline function remove(key : String)
-		return this.remove(normalizeKey(key));
+	public function getHeader(key : String) : Header {
+		key = Header.normalizeKey(key);
+		return this.find(function(h) return h.key == key);
+	}
 
-	public inline function set(key : String, value : String)
-		return this.set(normalizeKey(key), normalizeValue(value));
+	public function set(key : String, value : String) {
+		var p = getHeader(key);
+		if(null == p)
+			add(key, value);
+		else
+			p.value = value;
+	}
 
-	public static function normalizeKey(key : String)
-		return key.trim().underscore().dasherize().capitalizeWords();
-
-	public static function normalizeValue(value : String, ?key : String = " ")
-		return CRLF_PATTERN.replace(value, Const.CRLF);
+	public function add(key : String, value : String)
+		this.push(Header.fromTuple(new Tuple2(key, value)));
 
 	public static function formatValue(value : String, key : String) {
 		var len = key.length.max(1) + 2; // +2 for ": "
@@ -51,10 +60,10 @@ abstract Headers(Map<String, String>) to Map<String, String> {
 
 	public function toObject() {
 		var o = {};
-		this.tuples().pluck(Reflect.setField(o, _.left, _.right));
+		this.pluck(Reflect.setField(o, _.key, _.value));
 		return o;
 	}
 
 	public function toString()
-		return this.tuples().pluck('${_.left}: ${formatValue(_.right, _.left)}').join("\n");
+		return this.pluck('${_.key}: ${formatValue(_.value, _.key)}').join("\n");
 }
