@@ -1,18 +1,21 @@
 package thx.http;
 
 import thx.core.Url;
+import thx.http.RequestBody;
 
 class RequestInfo {
 	public var method : Method;
 	public var url : Url;
 	public var headers : Headers;
 	public var version : String;
-	// TODO add body
-	public function new(method : Method, url : Url, ?headers : Headers, version = "1.1") {
+	public var body : RequestBody;
+
+	public function new(method : Method, url : Url, ?headers : Headers, ?body : RequestBody) {
 		this.method = method;
 		this.url = url;
 		this.headers = null == headers ? Headers.empty() : headers;
-		this.version = version;
+		this.version = "1.1";
+		this.body = null == body ? NoBody : body;
 	}
 
 	public function toString() {
@@ -26,6 +29,15 @@ class RequestInfo {
 			buf.push('Host: ${url.host}');
 		if(h != "")
 			buf.push(h);
+		switch body {
+			case NoBody:
+			case BodyString(s, _):
+				buf.push(Const.CRLF + s);
+			case BodyBytes(b):
+				buf.push(Const.CRLF + b.toString());
+			case BodyStream(s):
+				buf.push(Const.CRLF + s.readAll().toString());
+		}
 		return buf.join(Const.CRLF);
 	}
 }

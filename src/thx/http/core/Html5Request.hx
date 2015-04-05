@@ -8,7 +8,7 @@ class Html5Request {
 	public static function make(requestInfo : RequestInfo, requestHandler : RequestHandler) : Void -> Void {
 		var req = new XMLHttpRequest();
 		req.onload = function() {
-			requestHandler.statusHandler(req.status);
+			requestHandler.statusHandler(req.status, req.responseText);
 		};
 		req.open(
 			requestInfo.method,
@@ -16,7 +16,16 @@ class Html5Request {
 			true
 		);
 		(requestInfo.headers : Array<Header>).pluck(req.setRequestHeader(_.key, _.value));
-		req.send();
+		switch requestInfo.body {
+			case NoBody:
+				req.send();
+			case BodyString(s, e):
+				req.send(s);
+			case BodyBytes(b):
+				req.send(b);
+			case BodyStream(s):
+				req.send(s);
+			}
 		return function() {};
 	}
 }
