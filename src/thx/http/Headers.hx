@@ -49,6 +49,12 @@ abstract Headers(Map<String, String>) to Map<String, String> {
 		return value.replace(Const.CRLF, Const.CRLF + Strings.repeat(" ", len));
 	}
 
+	public function toObject() {
+		var o = {};
+		this.tuples().pluck(Reflect.setField(o, _.left, _.right));
+		return o;
+	}
+
 	public function toString()
 		return this.tuples().pluck('${_.left}: ${formatValue(_.right, _.left)}').join("\n");
 }
