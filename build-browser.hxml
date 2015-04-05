@@ -1,9 +1,7 @@
 -lib thx.core
 -lib utest
--lib hxnodejs
 -cp src
 -cp test
--js bin/test.js
+-js bin/test-browser.js
 -main TestAll
-
--cmd node bin/test.js
+#-cmd open bin/index.html

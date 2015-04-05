@@ -2,3 +2,5 @@
 -cp test
 -js bin/test-server.js
 -main TestServer
+
+-cmd node bin/test-server.js

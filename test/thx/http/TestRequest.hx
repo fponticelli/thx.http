@@ -8,7 +8,7 @@ class TestRequest {
 
 	public function testSimpleRequest() {
 		var done = Assert.createAsync(),
-				info = new RequestInfo(Get, "http://localhost:6666/", [
+				info = new RequestInfo(Get, "http://localhost:8081/", [
 						"Agent" => "thx.http.Request"
 					]),
 				handler = RequestHandler.create(function(status : Int) {
