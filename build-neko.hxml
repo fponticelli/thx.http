@@ -1,6 +1,5 @@
 -lib thx.core
 -lib utest
--lib abe
 -cp src
 -cp test
 -neko bin/test.n
