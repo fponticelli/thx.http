@@ -43,8 +43,6 @@ class Html5Request {
 	}
 }
 
-
-
 class Html5Response implements thx.http.Response {
 	@:isVar public var body(get, null) : ResponseBody;
 	@:isVar public var statusCode(get, null) : Int;
