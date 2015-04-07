@@ -18,6 +18,22 @@ abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
 	@:from public static function fromTuples(arr : Array<Tuple2<String, String>>) : Headers
 		return arr.map(function(t) return (t : Header));
 
+	@:from public static function fromString(s : String) : Headers {
+		if(s == null)
+			return empty();
+
+		// TODO this will fail with multiple-line values
+		return s.split(Const.CRLF)
+			.map(function(line) return line.trim())
+			.filter(function(line) return line != "")
+			.map(function(line) {
+				var parts = line.split(":"),
+						key   = parts.shift(),
+						value = parts.join(":").ltrim();
+				return Header.raw(key, value);
+			});
+	}
+
 	public static function empty()
 		return new Headers([]);
 
