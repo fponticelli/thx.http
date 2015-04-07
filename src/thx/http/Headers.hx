@@ -12,6 +12,9 @@ abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
 	@:from public static function fromMap(map : Map<String, String>) : Headers
 		return map.tuples();
 
+	@:from public static function fromStringMap(map : haxe.ds.StringMap<String>) : Headers
+		return map.tuples();
+
 	@:from public static function fromTuples(arr : Array<Tuple2<String, String>>) : Headers
 		return arr.map(function(t) return (t : Header));
 
