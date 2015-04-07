@@ -6,9 +6,11 @@ using thx.core.Strings;
 abstract Header(Tuple2<String, String>) to Tuple2<String, String> {
 	static var CRLF_PATTERN = ~/\r\n|\n\r|\r|\n/mg;
 
-	@:from static public inline function fromTuple(t : Tuple2<String, String>) : Header {
+	public static function raw(key : String, value : String)
+		return new Header(new Tuple2(key, value));
+
+	@:from static public inline function fromTuple(t : Tuple2<String, String>) : Header
 		return new Header(normalize(t));
-	}
 
 	public static function normalize(t : Tuple2<String, String>) {
 		t._0 = normalizeKey(t._0);
