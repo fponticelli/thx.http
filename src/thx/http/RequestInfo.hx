@@ -1,6 +1,6 @@
 package thx.http;
 
-import thx.core.Url;
+import thx.Url;
 import thx.http.RequestBody;
 
 class RequestInfo {

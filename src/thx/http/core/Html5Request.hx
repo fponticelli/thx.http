@@ -2,8 +2,8 @@ package thx.http.core;
 
 import thx.http.Header;
 import js.html.XMLHttpRequest;
-using thx.core.Arrays;
-using thx.core.Error;
+using thx.Arrays;
+using thx.Error;
 
 class Html5Request {
 	public static function make(requestInfo : RequestInfo, callback : Response -> Void, error : Error -> Void) : Void -> Void {
@@ -13,7 +13,7 @@ class Html5Request {
 			callback(res);
 		};
 		req.onerror = function(e) {
-			error(thx.core.Error.fromDynamic(e));
+			error(thx.Error.fromDynamic(e));
 		};
 		req.open(
 			requestInfo.method,

@@ -1,7 +1,7 @@
 package thx.http;
 
-import thx.core.Functions;
-import thx.core.Error;
+import thx.Functions;
+import thx.Error;
 
 class Request {
 	public static function make(requestInfo : RequestInfo, callback : Response -> Void, error : Error -> Void) : Void -> Void {

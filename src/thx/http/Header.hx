@@ -1,7 +1,7 @@
 package thx.http;
 
-import thx.core.Tuple;
-using thx.core.Strings;
+import thx.Tuple;
+using thx.Strings;
 
 abstract Header(Tuple2<String, String>) to Tuple2<String, String> {
 	static var CRLF_PATTERN = ~/\r\n|\n\r|\r|\n/mg;

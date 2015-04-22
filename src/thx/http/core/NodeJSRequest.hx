@@ -2,7 +2,7 @@ package thx.http.core;
 
 import js.node.Http;
 import js.node.Https;
-import thx.core.Error;
+import thx.Error;
 
 class NodeJSRequest {
 	public static function make(requestInfo : RequestInfo, callback : Response -> Void, error : Error -> Void) : Void -> Void {

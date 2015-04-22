@@ -1,11 +1,11 @@
 package thx.http;
 
-using thx.core.Arrays;
-using thx.core.Iterators;
-using thx.core.Maps;
-using thx.core.Strings;
-using thx.core.Ints;
-using thx.core.Tuple;
+using thx.Arrays;
+using thx.Iterators;
+using thx.Maps;
+using thx.Strings;
+using thx.Ints;
+using thx.Tuple;
 
 @:forward(iterator)
 abstract Headers(Array<Header>) from Array<Header> to Array<Header> {

@@ -1,10 +1,10 @@
 package thx.http.core;
 
-using thx.core.Arrays;
-import thx.core.Functions;
+using thx.Arrays;
+import thx.Functions;
 
 class HaxeRequest {
-	public static function make(requestInfo : RequestInfo, callback : Response -> Void, error : thx.core.Error -> Void) : Void -> Void {
+	public static function make(requestInfo : RequestInfo, callback : Response -> Void, error : thx.Error -> Void) : Void -> Void {
 		var req = new haxe.Http(requestInfo.url);
 		(requestInfo.headers : Array<Header>)
 			.pluck(req.addHeader(_.key, _.value));
@@ -28,7 +28,7 @@ class HaxeRequest {
 			status = s;
 		};
 		req.onError = function(msg) {
-			error(new thx.core.Error(msg));
+			error(new thx.Error(msg));
 		};
 
 		switch requestInfo.method {
