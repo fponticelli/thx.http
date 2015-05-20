@@ -20,4 +20,9 @@ class TestServer implements abe.IRoute {
 		trace(request.body);
 		response.status(200).send(request.body);
 	}
+
+	@:get("/nocontent")
+	function nocontent() {
+		response.sendStatus(204);
+	}
 }

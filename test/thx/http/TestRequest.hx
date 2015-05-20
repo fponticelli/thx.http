@@ -43,4 +43,20 @@ class TestRequest {
 			function(e) Assert.fail("should never reach this point")
 		);
 	}
+
+	public function testNoContent() {
+		var done = Assert.createAsync(),
+				info = new RequestInfo(Get, "http://localhost:8081/nocontent", [
+						"Agent" => "thx.http.Request"
+					]);
+
+		Request.make(info,
+			function(r) {
+				Assert.same(r.body, ResponseBody.NoBody);
+				Assert.equals(204, r.statusCode);
+				done();
+			},
+			function(e) Assert.fail("should never reach this point")
+		);
+	}
 }

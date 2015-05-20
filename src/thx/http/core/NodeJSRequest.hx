@@ -2,26 +2,16 @@ package thx.http.core;
 
 import js.node.Http;
 import js.node.Https;
+import js.node.http.IncomingMessage;
+import js.node.Buffer;
 import thx.Error;
+import thx.nodejs.io.StreamInput;
 
 class NodeJSRequest {
 	public static function make(requestInfo : RequestInfo, callback : Response -> Void, error : Error -> Void) : Void -> Void {
-		function callbackResponse(res : js.node.http.IncomingMessage) {
-			var first = true;
-			// TODO stream response
-			res.on("data", function(chunk) {
-				if(first) {
-					first = false;
-					callback(new NodeJSResponse(res.statusCode));
-				}
-			});
-
-			res.on("end", function(_) {
-				if(first) {
-					first = false;
-					callback(new NodeJSResponse(res.statusCode));
-				}
-			});
+		trace("MAKE");
+		function callbackResponse(res : IncomingMessage) {
+			callback(new NodeJSResponse(res));
 		}
 
 		var url = requestInfo.url,
@@ -47,7 +37,10 @@ class NodeJSRequest {
 					case other:
 						throw 'unexpected protocol $other';
 				};
-		req.on("error", function(e) error(Error.fromDynamic(e)));
+		req.on("error", function(e) {
+			trace("ERROR", e);
+			error(Error.fromDynamic(e));
+		});
 		req.end();
 		return req.abort;
 	}
@@ -55,23 +48,41 @@ class NodeJSRequest {
 
 class NodeJSResponse implements thx.http.Response {
 	@:isVar public var body(get, null) : ResponseBody;
-	@:isVar public var statusCode(get, null) : Int;
+	public var statusCode(get, null) : Int;
 	@:isVar public var statusText(get, null) : String;
 	@:isVar public var headers(get, null) : Headers;
 	var getRawHeaders : Void -> String;
-	public function new(statusCode : Int/*, body : String, getRawHeaders : Void -> String*/) {
-		this.statusCode = statusCode;
-		//this.body = null == body || "" == body ? NoBody : BodyString(body);
-		//this.getRawHeaders = getRawHeaders;
+	var res : IncomingMessage;
+	public function new(res : IncomingMessage) {
+		this.res = res;
+		var length;
+		trace(headers.exists("Content-Length"), Std.parseInt(headers.get("Content-Length")));
+		var input = new StreamInput(res);
+		this.body = NoBody;
+		/*
+		if(null == firstChunk) {
+			this.body = NoBody;
+		} else if(headers.exists("Content-Length") && Std.parseInt(headers.get("Content-Length")) == firstChunk.length) {
+			trace("SET TO BODY STRING");
+			this.body = BodyString(firstChunk.toString());
+		} else {
+			res.on("data", function(chunk : Buffer) {
+
+			});
+
+		}
+		*/
+		// TODO BodyBytes
+		// TODO BodyString encoding
 	}
 
 	function get_body() return ResponseBody.NoBody;
-	function get_statusCode() return statusCode;
+	function get_statusCode() return res.statusCode;
 	function get_statusText() return null;
 	function get_headers() {
 		if(null == headers) {
-			//headers = getRawHeaders();
+			headers = res.headers;
 		}
-		return Headers.empty();
+		return headers;
 	}
 }
