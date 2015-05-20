@@ -1,14 +1,18 @@
 package thx.http;
 
 using thx.Arrays;
+using thx.Dynamics;
+using thx.Ints;
 using thx.Iterators;
 using thx.Maps;
 using thx.Strings;
-using thx.Ints;
 using thx.Tuple;
 
 @:forward(iterator)
 abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
+	@:from public static function fromDynamic(object : Dynamic<String>) : Headers
+		return object.tuples();
+
 	@:from public static function fromMap(map : Map<String, String>) : Headers
 		return map.tuples();
 
