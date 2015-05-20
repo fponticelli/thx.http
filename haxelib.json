@@ -1,0 +1,15 @@
+{
+  "name": "thx.http",
+  "url": "https://github.com/fponticelli/thx.http",
+  "license": "MIT",
+  "classPath": "src",
+  "tags": ["thx", "http", "cross"],
+  "description": "Http client library.",
+  "releasenote": "First release.",
+  "version": "0.0.1",
+  "contributors": ["fponticelli"],
+  "dependencies": {
+    "thx.core": "",
+    "thx.nodejs": ""
+  }
+}
