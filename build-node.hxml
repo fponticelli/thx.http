@@ -2,6 +2,8 @@
 -lib utest
 -lib hxnodejs
 -lib thx.nodejs
+-lib thx.promise
+-lib thx.stream
 -cp src
 -cp test
 -js bin/test.js

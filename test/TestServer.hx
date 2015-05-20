@@ -17,8 +17,7 @@ class TestServer implements abe.IRoute {
 	@:post("/")
 	@:use(mw.BodyParser.text())
 	function bounce() {
-		trace(request.body);
-		response.status(200).send(request.body);
+		response.status(200).send(Reflect.field(request.query, "q"));
 	}
 
 	@:get("/nocontent")
