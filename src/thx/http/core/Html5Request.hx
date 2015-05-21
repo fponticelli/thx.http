@@ -2,66 +2,88 @@ package thx.http.core;
 
 import thx.http.Header;
 import js.html.XMLHttpRequest;
+using thx.promise.Promise;
+import thx.stream.*;
 using thx.Arrays;
 using thx.Error;
+import haxe.io.Bytes;
 
 class Html5Request {
-	public static function make(requestInfo : RequestInfo, callback : Response -> Void, error : Error -> Void) : Void -> Void {
-		var req = new XMLHttpRequest();
-		req.onload = function() {
-			var res = new Html5Response(req.status, req.statusText, req.responseText, req.getAllResponseHeaders);
-			callback(res);
-		};
-		req.onerror = function(e) {
-			error(thx.Error.fromDynamic(e));
-		};
-		req.open(
-			requestInfo.method,
-			requestInfo.url,
-			true
-		);
-		(requestInfo.headers : Array<Header>).pluck(req.setRequestHeader(_.key, _.value));
-		switch requestInfo.body {
-			case NoBody:
-				req.send();
-			case BodyString(s, e):
-				req.send(s);
-			case BodyBytes(b):
-				req.send(b); // TODO needs conversion
-			case BodyStream(s):
-				try {
-					var b;
-					while((b = s.read(8192)).length > 0) {
-						req.send(b.getData());
+	public static function make(requestInfo : RequestInfo) : Promise<Response> {
+		return Promise.create(function(resolve : Response -> Void, reject) {
+			var req = new XMLHttpRequest();
+			req.onreadystatechange = function(e) {
+				if(req.readyState != 2) // 2: request received
+					return;
+				resolve(new Html5Response(req));
+			};
+			req.onerror = function(e) {
+				reject(thx.Error.fromDynamic(e));
+			};
+			req.open(
+				requestInfo.method,
+				requestInfo.url,
+				true
+			);
+			req.responseType = ARRAYBUFFER;
+			(requestInfo.headers : Array<Header>).pluck(req.setRequestHeader(_.key, _.value));
+			switch requestInfo.body {
+				case NoBody:
+					req.send();
+				case BodyString(s, e):
+					req.send(s);
+				case BodyBytes(b):
+					req.send(b); // TODO needs conversion
+				case BodyStream(s):
+					try {
+						var b;
+						while((b = s.read(8192)).length > 0) {
+							req.send(b.getData());
+						}
+					} catch(e : haxe.io.Eof) {
+						req.send(); // TODO is this needed?
 					}
-				} catch(e : haxe.io.Eof) {
-					req.send(); // TODO is this needed?
+					req.send(s); // TODO needs conversion
 				}
-				req.send(s); // TODO needs conversion
-			}
-		return function() {};
+		});
 	}
 }
 
 class Html5Response implements thx.http.Response {
-	@:isVar public var body(get, null) : ResponseBody;
-	@:isVar public var statusCode(get, null) : Int;
-	@:isVar public var statusText(get, null) : String;
+	public var statusCode(get, null) : Int;
+	public var statusText(get, null) : String;
 	@:isVar public var headers(get, null) : Headers;
-	var getRawHeaders : Void -> String;
-	public function new(statusCode : Int, statusText : String, body : String, getRawHeaders : Void -> String) {
-		this.statusCode = statusCode;
-		this.statusText = statusText;
-		this.body = null == body || "" == body ? NoBody : BodyString(body);
-		this.getRawHeaders = getRawHeaders;
+	@:isVar public var emitter(get, null) : Emitter<Bytes>;
+	var req : XMLHttpRequest;
+	public function new(req : XMLHttpRequest) {
+		this.req = req;
+		var bus = new Bus();
+		req.onload = function(e) {
+			if(req.response == null) {
+				bus.end();
+			} else {
+				bus.pulse(Bytes.ofData(req.response));
+				bus.end();
+			}
+		};
+		/*
+		res.on("readable", function() {
+			var buf : Buffer = res.read();
+			if(buf == null)
+				bus.end();
+			else
+				bus.pulse(buf.toBytes());
+		});
+		*/
+		this.emitter = bus;
 	}
 
-	function get_body() return body;
-	function get_statusCode() return statusCode;
-	function get_statusText() return null;
+	function get_emitter() return emitter;
+	function get_statusCode() return req.status;
+	function get_statusText() return req.statusText;
 	function get_headers() {
 		if(null == headers) {
-			headers = getRawHeaders();
+			headers = req.getAllResponseHeaders();
 		}
 		return headers;
 	}

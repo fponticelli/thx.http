@@ -21,7 +21,6 @@ class TestRequest {
 					.map(function(b) return b.toString())
 					.join("")
 					.subscribe(function(r) {
-						trace("############", r);
 						Assert.equals("OK", r);
 						done();
 					});
@@ -36,13 +35,11 @@ class TestRequest {
 
 		Request.make(info)
 			.success(function(r) {
-				trace(r.headers);
 				Assert.equals(200, r.statusCode);
 				r.emitter
 					.map(function(b) return b.toString())
 					.join("")
 					.subscribe(function(r) {
-						trace("############", r);
 						Assert.equals(message, r);
 						done();
 					});

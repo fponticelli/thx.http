@@ -11,17 +11,21 @@ class TestServer implements abe.IRoute {
 
 	@:get("/")
 	function root() {
+		trace('SEND: OK');
 		response.status(200).send("OK");
 	}
 
 	@:post("/")
 	@:use(mw.BodyParser.text())
 	function bounce() {
-		response.status(200).send(Reflect.field(request.query, "q"));
+		var content = Reflect.field(request.query, "q");
+		trace('SEND: $content');
+		response.status(200).send(content);
 	}
 
 	@:get("/nocontent")
 	function nocontent() {
+		trace('SEND: NO CONTENT');
 		response.sendStatus(204);
 	}
 }
