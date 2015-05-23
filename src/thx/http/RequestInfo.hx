@@ -4,6 +4,30 @@ import thx.Url;
 import thx.http.RequestBody;
 
 class RequestInfo {
+	static var NL = ~/(\r\n|\n\r|\n|\r)/g;
+	static var WS = ~/(\s+)/g;
+	public static function parse(request : String) : RequestInfo {
+		var lines = NL.split(request),
+				first = WS.split(lines.shift()),
+				method : Method = first[0],
+				emptyIndex = lines.indexOf("");
+		if(emptyIndex < 0) {
+			emptyIndex = lines.length;
+		}
+		var headers : Headers = lines.slice(0, emptyIndex).join("\r\n");
+		var url = (headers.exists("Host") ? headers.get("Host") : "") + first[1];
+		var body = emptyIndex == lines.length ? NoBody : BodyString(lines.slice(emptyIndex+1).join("\r\n"));
+
+		headers.remove("Host");
+
+		return new RequestInfo(
+			method,
+			url,
+			headers,
+			body
+		);
+	}
+
 	public var method : Method;
 	public var url : Url;
 	public var headers : Headers;
