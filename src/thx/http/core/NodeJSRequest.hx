@@ -4,13 +4,12 @@ import js.node.Http;
 import js.node.Https;
 import js.node.http.IncomingMessage;
 import js.node.Buffer;
-import thx.Error;
 import haxe.io.Bytes;
+import thx.Error;
+using thx.nodejs.io.Buffers;
 using thx.promise.Promise;
 using thx.stream.Bus;
 using thx.stream.Emitter;
-using thx.stream.Stream;
-using thx.nodejs.io.Buffers;
 
 class NodeJSRequest {
 	public static function make(requestInfo : RequestInfo) : Promise<Response> {

@@ -1,11 +1,11 @@
 package thx.http.core;
 
-import thx.http.Header;
 import js.html.XMLHttpRequest;
-using thx.promise.Promise;
-import thx.stream.*;
 using thx.Arrays;
 using thx.Error;
+import thx.http.Header;
+using thx.promise.Promise;
+import thx.stream.*;
 import haxe.io.Bytes;
 
 class Html5Request {
@@ -14,7 +14,7 @@ class Html5Request {
 			var bus = new Bus(),
 					req = new XMLHttpRequest();
 			req.onload = function(e) {
-				if(req.response == null) {
+				if(req.response == null || req.response.length == 0) {
 					bus.end();
 				} else {
 					bus.pulse(Bytes.ofData(req.response));
