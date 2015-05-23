@@ -3,6 +3,7 @@ package thx.http;
 import thx.stream.Emitter;
 import haxe.io.Bytes;
 import thx.error.AbstractMethod;
+using thx.promise.Promise;
 
 class Response {
 	static var statusCodes(default, null) = [
@@ -72,7 +73,21 @@ class Response {
 	public var headers(default, null) : Headers;
 	public var emitter(default, null) : Emitter<Bytes>;
 
-	public function cancel() : Void {}
+	// public function cancel() : Void {}
+
+	public function asBytes() : Promise<Bytes>
+		return Promise.create(function(resolve, reject) {
+			var buf = new haxe.io.BytesBuffer();
+			emitter.subscribe(
+				function(b) buf.addBytes(b, 0, b.length),
+				function(cancel)
+					if(cancel) reject(new thx.Error("Data stream has been cancelled"))
+					else       resolve(buf.getBytes())
+			);
+		});
+
+  public function asString() : Promise<String>
+		return asBytes().mapSuccess(function(b) return b.toString());
 
 	function get_statusCode() : Int
 		return throw new AbstractMethod();
