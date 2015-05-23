@@ -34,7 +34,7 @@ abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
 				var parts = line.split(":"),
 						key   = parts.shift(),
 						value = parts.join(":").ltrim();
-				return Header.raw(key, value);
+				return Header.create(key, value);
 			});
 	}
 

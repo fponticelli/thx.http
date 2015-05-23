@@ -12,6 +12,9 @@ abstract Header(Tuple2<String, String>) to Tuple2<String, String> {
 	@:from static public inline function fromTuple(t : Tuple2<String, String>) : Header
 		return new Header(normalize(t));
 
+	static public inline function create(key : String, value : String) : Header
+		return fromTuple(new Tuple2(key, value));
+
 	public static function normalize(t : Tuple2<String, String>) {
 		t._0 = normalizeKey(t._0);
 		t._1 = normalizeValue(t._1);
