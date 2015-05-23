@@ -10,26 +10,15 @@ class RequestInfo {
 		var firstLine = Const.WS.split(Const.NL.matchedLeft());
 		request = Const.NL.matchedRight();
 
-		trace('FIRST LINE: $firstLine');
-		trace('REST:\n$request');
-
 		Const.NL2.match(request);
 		var headersBlock = Const.NL2.matchedLeft(),
 				bodyBlock = Const.NL2.matchedRight(),
-				method : Method = firstLine[0];
-
-		trace('HEADERS:\n$headersBlock');
-		trace('BODY:\n$bodyBlock');
-
-		var headers : Headers = headersBlock;
-		var url = (headers.exists("Host") ? headers.get("Host") : "") + firstLine[1];
-		var body = bodyBlock.isEmpty() ? NoBody : BodyString(bodyBlock);
+				method : Method = firstLine[0],
+				headers : Headers = headersBlock,
+				url = (headers.exists("Host") ? headers.get("Host") : "") + firstLine[1],
+				body = bodyBlock.isEmpty() ? NoBody : BodyString(bodyBlock);
 
 		headers.remove("Host");
-
-		trace('HEADERS2:\n$headers');
-		trace('METHOD: $method');
-		trace('URL:    $url');
 
 		return new RequestInfo(
 			method,
