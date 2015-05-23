@@ -50,16 +50,11 @@ class NodeJSRequest {
 	}
 }
 
-class NodeJSResponse implements thx.http.Response {
-	public var statusCode(get, null) : Int;
-	@:isVar public var statusText(get, null) : String;
-	@:isVar public var headers(get, null) : Headers;
-	public var emitter(get, null) : Emitter<Bytes>;
-	var getRawHeaders : Void -> String;
+class NodeJSResponse extends thx.http.Response {
 	var res : IncomingMessage;
-	var _emitter : Emitter<Bytes>;
 	public function new(res : IncomingMessage) {
 		this.res = res;
+		headers = res.headers;
 		var bus = new Bus();
 		res.on("readable", function() {
 			var buf : Buffer = res.read();
@@ -68,16 +63,8 @@ class NodeJSResponse implements thx.http.Response {
 			else
 				bus.pulse(buf.toBytes());
 		});
-		this._emitter = bus;
+		this.emitter = bus;
 	}
 
-	function get_statusCode() return res.statusCode;
-	function get_statusText() return null;
-	function get_headers() {
-		if(null == headers) {
-			headers = res.headers;
-		}
-		return headers;
-	}
-	function get_emitter() return _emitter;
+	override function get_statusCode() return res.statusCode;
 }

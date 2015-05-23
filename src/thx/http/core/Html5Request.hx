@@ -11,11 +11,20 @@ import haxe.io.Bytes;
 class Html5Request {
 	public static function make(requestInfo : RequestInfo) : Promise<Response> {
 		return Promise.create(function(resolve : Response -> Void, reject) {
-			var req = new XMLHttpRequest();
+			var bus = new Bus(),
+					req = new XMLHttpRequest();
+			req.onload = function(e) {
+				if(req.response == null) {
+					bus.end();
+				} else {
+					bus.pulse(Bytes.ofData(req.response));
+					bus.end();
+				}
+			};
 			req.onreadystatechange = function(e) {
 				if(req.readyState != 2) // 2: request received
 					return;
-				resolve(new Html5Response(req));
+				resolve(new Html5Response(req, bus));
 			};
 			req.onerror = function(e) {
 				reject(thx.Error.fromDynamic(e));
@@ -49,42 +58,14 @@ class Html5Request {
 	}
 }
 
-class Html5Response implements thx.http.Response {
-	public var statusCode(get, null) : Int;
-	public var statusText(get, null) : String;
-	@:isVar public var headers(get, null) : Headers;
-	@:isVar public var emitter(get, null) : Emitter<Bytes>;
+class Html5Response extends thx.http.Response {
 	var req : XMLHttpRequest;
-	public function new(req : XMLHttpRequest) {
+	public function new(req : XMLHttpRequest, bus : Bus<Bytes>) {
 		this.req = req;
-		var bus = new Bus();
-		req.onload = function(e) {
-			if(req.response == null) {
-				bus.end();
-			} else {
-				bus.pulse(Bytes.ofData(req.response));
-				bus.end();
-			}
-		};
-		/*
-		res.on("readable", function() {
-			var buf : Buffer = res.read();
-			if(buf == null)
-				bus.end();
-			else
-				bus.pulse(buf.toBytes());
-		});
-		*/
+		headers = req.getAllResponseHeaders();
 		this.emitter = bus;
 	}
 
-	function get_emitter() return emitter;
-	function get_statusCode() return req.status;
-	function get_statusText() return req.statusText;
-	function get_headers() {
-		if(null == headers) {
-			headers = req.getAllResponseHeaders();
-		}
-		return headers;
-	}
+	override function get_statusCode() return req.status;
+	override function get_statusText() return req.statusText;
 }

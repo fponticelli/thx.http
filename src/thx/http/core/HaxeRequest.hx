@@ -46,7 +46,7 @@ class HaxeRequest {
 	}
 }
 
-class HaxeResponse implements thx.http.Response {
+class HaxeResponse extends thx.http.Response {
 	@:isVar public var body(get, null) : ResponseBody;
 	@:isVar public var statusCode(get, null) : Int;
 	public var statusText(get, null) : String;
