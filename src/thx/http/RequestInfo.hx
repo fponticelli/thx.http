@@ -2,23 +2,34 @@ package thx.http;
 
 import thx.Url;
 import thx.http.RequestBody;
+using thx.Strings;
 
 class RequestInfo {
-	static var NL = ~/(\r\n|\n\r|\n|\r)/g;
-	static var WS = ~/(\s+)/g;
 	public static function parse(request : String) : RequestInfo {
-		var lines = NL.split(request),
-				first = WS.split(lines.shift()),
-				method : Method = first[0],
-				emptyIndex = lines.indexOf("");
-		if(emptyIndex < 0) {
-			emptyIndex = lines.length;
-		}
-		var headers : Headers = lines.slice(0, emptyIndex).join("\r\n");
-		var url = (headers.exists("Host") ? headers.get("Host") : "") + first[1];
-		var body = emptyIndex == lines.length ? NoBody : BodyString(lines.slice(emptyIndex+1).join("\r\n"));
+		Const.NL.match(request);
+		var firstLine = Const.WS.split(Const.NL.matchedLeft());
+		request = Const.NL.matchedRight();
+
+		trace('FIRST LINE: $firstLine');
+		trace('REST:\n$request');
+
+		Const.NL2.match(request);
+		var headersBlock = Const.NL2.matchedLeft(),
+				bodyBlock = Const.NL2.matchedRight(),
+				method : Method = firstLine[0];
+
+		trace('HEADERS:\n$headersBlock');
+		trace('BODY:\n$bodyBlock');
+
+		var headers : Headers = headersBlock;
+		var url = (headers.exists("Host") ? headers.get("Host") : "") + firstLine[1];
+		var body = bodyBlock.isEmpty() ? NoBody : BodyString(bodyBlock);
 
 		headers.remove("Host");
+
+		trace('HEADERS2:\n$headers');
+		trace('METHOD: $method');
+		trace('URL:    $url');
 
 		return new RequestInfo(
 			method,

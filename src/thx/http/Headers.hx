@@ -27,7 +27,7 @@ abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
 			return empty();
 
 		// TODO this will fail with multiple-line values
-		return s.split(Const.CRLF)
+		return Const.SPLIT_NL.split(s)
 			.map(function(line) return line.trim())
 			.filter(function(line) return line != "")
 			.map(function(line) {
