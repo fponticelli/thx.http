@@ -15,17 +15,13 @@ class TestRequest {
 					]);
 
 		Request.make(info)
-			.success(function(r) {
+			.mapSuccessPromise(function(r) {
 				Assert.equals(200, r.statusCode);
-				r.emitter
-					.map(function(b) return b.toString())
-					.join("")
-					.subscribe(function(r) {
-						Assert.equals("OK", r);
-						done();
-					});
+				return r.asString();
 			})
-			.failure(function(e) Assert.fail("should never reach this point"));
+			.success(function(r) Assert.equals("OK", r))
+			.failure(function(e) Assert.fail("should never reach this point"))
+			.always(done);
 	}
 
 	public function testStringBody() {
@@ -34,17 +30,13 @@ class TestRequest {
 				info = new RequestInfo(Post, 'http://localhost:8081/?q=$message', NoBody);
 
 		Request.make(info)
-			.success(function(r) {
+			.mapSuccessPromise(function(r) {
 				Assert.equals(200, r.statusCode);
-				r.emitter
-					.map(function(b) return b.toString())
-					.join("")
-					.subscribe(function(r) {
-						Assert.equals(message, r);
-						done();
-					});
+				return r.asString();
 			})
-			.failure(function(e) Assert.fail("should never reach this point"));
+			.success(function(r) Assert.equals(message, r))
+			.failure(function(e) Assert.fail('$e'))
+			.always(done);
 	}
 
 	public function testNoContent() {
