@@ -3,7 +3,6 @@ package thx.http.core;
 using thx.Arrays;
 using thx.Strings;
 using thx.promise.Promise;
-using thx.stream.Value;
 using thx.stream.Emitter;
 import haxe.io.Bytes;
 
@@ -24,13 +23,17 @@ class HaxeRequest {
 				case NoBody: // do nothing
 			}
 
-			var value = new Value(null);
-			req.onData = function(data : String) {
-				if(!data.isEmpty())
-					value.set(Bytes.ofString(data));
+			var data = null,
+					emitter = new Emitter(function(stream){
+						if(null != data)
+							stream.pulse(data);
+						stream.end();
+					});
+			req.onData = function(d : String) {
+				data = Bytes.ofString(d);
 			};
 			req.onStatus = function(s) {
-				resolve(new HaxeResponse(s, value, req.responseHeaders));
+				resolve(new HaxeResponse(s, emitter, req.responseHeaders));
 			};
 			req.onError = function(msg) {
 				trace('ERROR: $msg');
@@ -48,10 +51,10 @@ class HaxeRequest {
 
 class HaxeResponse extends thx.http.Response {
 	var _statusCode : Int;
-	public function new(statusCode : Int, value : Value<Bytes>, headers : Headers) {
+	public function new(statusCode : Int, emitter : Emitter<Bytes>, headers : Headers) {
 		this._statusCode = statusCode;
 		this.headers = headers;
-		emitter = value;
+		this.emitter = emitter;
 	}
 
 	override function get_statusCode() return _statusCode;
