@@ -57,10 +57,11 @@ class NodeJSResponse extends thx.http.Response {
 		var bus = new Bus();
 		res.on("readable", function() {
 			var buf : Buffer = res.read();
-			if(buf == null)
-				bus.end();
-			else
+			if(buf != null)
 				bus.pulse(buf.toBytes());
+		});
+		res.on("end", function() {
+			bus.end();
 		});
 		this.emitter = bus;
 	}
