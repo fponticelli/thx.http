@@ -2,6 +2,7 @@ package thx.http.core;
 
 import js.html.XMLHttpRequest;
 using thx.Arrays;
+using thx.Functions;
 using thx.Error;
 import thx.http.Header;
 using thx.promise.Promise;
@@ -35,7 +36,7 @@ class Html5Request {
 				true
 			);
 			req.responseType = ARRAYBUFFER;
-			(requestInfo.headers : Array<Header>).pluck(req.setRequestHeader(_.key, _.value));
+			(requestInfo.headers : Array<Header>).map.fn(req.setRequestHeader(_.key, _.value));
 			switch requestInfo.body {
 				case NoBody:
 					req.send();

@@ -1,6 +1,7 @@
 package thx.http.core;
 
 using thx.Arrays;
+using thx.Functions;
 using thx.Strings;
 using thx.promise.Promise;
 using thx.stream.Emitter;
@@ -11,7 +12,7 @@ class HaxeRequest {
 		return Promise.create(function(resolve : Response -> Void, reject) {
 			var req = new haxe.Http(requestInfo.url);
 			(requestInfo.headers : Array<Header>)
-				.pluck(req.addHeader(_.key, _.value));
+				.map.fn(req.addHeader(_.key, _.value));
 
 			switch requestInfo.body {
 				case BodyString(s, _): // TODO encoding

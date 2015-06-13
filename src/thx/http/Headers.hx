@@ -1,6 +1,7 @@
 package thx.http;
 
 using thx.Arrays;
+using thx.Functions;
 using thx.Dynamics;
 using thx.Ints;
 using thx.Iterators;
@@ -83,10 +84,10 @@ abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
 
 	public function toObject() {
 		var o = {};
-		this.pluck(Reflect.setField(o, _.key, _.value));
+		this.map.fn(Reflect.setField(o, _.key, _.value));
 		return o;
 	}
 
 	public function toString()
-		return this.pluck('${_.key}: ${formatValue(_.value, _.key)}').join("\n");
+		return this.map.fn('${_.key}: ${formatValue(_.value, _.key)}').join("\n");
 }
