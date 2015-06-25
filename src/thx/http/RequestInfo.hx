@@ -10,15 +10,31 @@ class RequestInfo {
 		var firstLine = Const.WS.split(Const.NL.matchedLeft());
 		request = Const.NL.matchedRight();
 
-		Const.NL2.match(request);
-		var headersBlock = Const.NL2.matchedLeft(),
-				bodyBlock = Const.NL2.matchedRight(),
+		var headersBlock,
+				bodyBlock = null,
 				method : Method = firstLine[0],
-				headers : Headers = headersBlock,
-				url = (headers.exists("Host") ? headers.get("Host") : "") + firstLine[1],
-				body = bodyBlock.isEmpty() ? NoBody : BodyString(bodyBlock);
+				headers : Headers,
+				url,
+				body;
 
-		headers.remove("Host");
+		if(Const.NL2.match(request)) {
+			headersBlock = Const.NL2.matchedLeft();
+			bodyBlock = Const.NL2.matchedRight();
+		} else {
+			headersBlock = request;
+		}
+		headers = headersBlock;
+		var host = headers.get("Host");
+		if(null == host) {
+			url = firstLine[1];
+		} else {
+			if(!host.startsWith('http://') && !host.startsWith('https://'))
+				host = 'http://$host';
+			url = '$host${firstLine[1]}';
+			headers.remove("Host");
+		}
+		body = bodyBlock.isEmpty() ? NoBody : BodyString(bodyBlock);
+
 
 		return new RequestInfo(
 			method,
