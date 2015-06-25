@@ -47,6 +47,13 @@ class NodeJSRequest {
 			req.end();
 		});
 	}
+
+	// TODO dirty trick
+	static function __init__() untyped {
+		require('tls').checkServerIdentity = function (host, cert) {
+		  return true;
+		};
+	}
 }
 
 class NodeJSResponse extends thx.http.Response {
