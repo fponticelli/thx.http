@@ -46,8 +46,8 @@ abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
 		this = arr;
 
 	public function exists(key : String) : Bool {
-		key = Header.normalizeKey(key);
-		return this.any(function(h) return h.key == key);
+		key = Header.normalizeKey(key).toLowerCase();
+		return this.any(function(h) return h.key.toLowerCase() == key);
 	}
 
 	public function get(key : String) : String {
@@ -56,14 +56,14 @@ abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
 	}
 
 	public function remove(key : String) {
-		key = Header.normalizeKey(key);
-		var p = this.find(function(h) return h.key == key);
+		key = Header.normalizeKey(key).toLowerCase();
+		var p = this.find(function(h) return h.key.toLowerCase() == key);
 		return this.remove(p);
 	}
 
 	public function getHeader(key : String) : Header {
-		key = Header.normalizeKey(key);
-		return this.find(function(h) return h.key == key);
+		key = Header.normalizeKey(key).toLowerCase();
+		return this.find(function(h) return h.key.toLowerCase() == key);
 	}
 
 	public function set(key : String, value : String) {

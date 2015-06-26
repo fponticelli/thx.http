@@ -21,8 +21,15 @@ abstract Header(Tuple2<String, String>) to Tuple2<String, String> {
 		return t;
 	}
 
-	public static function normalizeKey(key : String)
-		return key.trim().underscore().dasherize().capitalizeWords();
+	public static function normalizeKey(key : String) {
+		key = key.trim();
+		if(key.contains('-'))
+			return key;
+		var nkey = key.trim().underscore().dasherize().capitalizeWords();
+		if(nkey.toLowerCase() == key)
+			return key;
+		return nkey;
+	}
 
 	public static function normalizeValue(value : String, ?key : String = " ")
 		return CRLF_PATTERN.replace(value, Const.CRLF);

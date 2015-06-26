@@ -9,10 +9,11 @@ class TestHeader {
 	public function testNormalization() {
 		var tests = [
 			["Accept", "Accept"],
-			["Accept", "accept"],
+			["accept", "accept"],
 			["Transfer-Encoding", "TransferEncoding"],
 			["Transfer-Encoding", "transferEncoding"],
-			["X-Powered-By", "xPoweredBy"]
+			["X-Powered-By", "xPoweredBy"],
+			["x-powered-by", "x-powered-by"]
 		];
 
 		for(test in tests)
