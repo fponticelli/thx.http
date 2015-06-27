@@ -34,8 +34,6 @@ class RequestInfo {
 			headers.remove("Host");
 		}
 		body = bodyBlock.isEmpty() ? NoBody : BodyString(bodyBlock);
-
-
 		return new RequestInfo(
 			method,
 			url,
