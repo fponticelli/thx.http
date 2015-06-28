@@ -1,10 +1,11 @@
 package thx.http;
 
-import thx.Url;
-import thx.http.RequestBody;
 import haxe.io.Bytes;
+import thx.http.RequestBody;
 using thx.promise.Promise;
+using thx.stream.Emitter;
 using thx.Strings;
+import thx.Url;
 
 class RequestInfo {
 	public static function parse(request : String) : RequestInfo {
@@ -72,6 +73,7 @@ class RequestInfo {
 			buf.push(h);
 		switch body {
 			case NoBody:
+			case BodyStream(e): // TODO print something here?
 			case BodyString(s, _):
 				buf.push(Const.CRLF + s);
 			case BodyBytes(b):
@@ -90,6 +92,12 @@ class RequestInfo {
 				return Promise.value(Bytes.alloc(0));
 			case BodyBytes(b):
 				return Promise.value(b);
+			case BodyStream(e):
+				return e.toPromise()
+					.mapSuccess(function(bytes) {
+						body = BodyBytes(bytes);
+						return bytes;
+					});
 			case BodyString(s, _):
 				var b = Bytes.ofString(s);
 				body = BodyBytes(b);
