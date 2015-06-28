@@ -40,7 +40,8 @@ class RequestInfo {
 			method,
 			url,
 			headers,
-			body
+			body,
+			firstLine[2].split("/").pop()
 		);
 	}
 
