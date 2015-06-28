@@ -1,9 +1,9 @@
 package thx.http;
 
-import thx.stream.Emitter;
 import haxe.io.Bytes;
 import thx.error.AbstractMethod;
 using thx.promise.Promise;
+using thx.stream.Emitter;
 
 class Response {
 	static var statusCodes(default, null) = [
@@ -76,15 +76,7 @@ class Response {
 	// public function cancel() : Void {}
 
 	public function asBytes() : Promise<Bytes>
-		return Promise.create(function(resolve, reject) {
-			var buf = new haxe.io.BytesBuffer();
-			emitter.subscribe(
-				function(b) buf.addBytes(b, 0, b.length),
-				function(cancel)
-					if(cancel) reject(new thx.Error("Data stream has been cancelled"))
-					else       resolve(buf.getBytes())
-			);
-		});
+		return emitter.toPromise();
 
   public function asString() : Promise<String>
 		return asBytes().mapSuccess(function(b) return b.toString());
