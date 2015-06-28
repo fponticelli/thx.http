@@ -50,7 +50,6 @@ class RequestInfo {
 	public var headers : Headers;
 	public var version : String;
 	public var body : RequestBody;
-	public var bytes : Bytes;
 
 	public function new(method : Method, url : Url, ?headers : Headers, ?body : RequestBody, ?version = "1.1") {
 		this.method = method;
@@ -58,7 +57,6 @@ class RequestInfo {
 		this.headers = null == headers ? Headers.empty() : headers;
 		this.version = version;
 		this.body = null == body ? NoBody : body;
-		this.bytes = null;
 	}
 
 	public function toString() {
@@ -72,33 +70,26 @@ class RequestInfo {
 			buf.push('Host: ${url.host}');
 		if(h != "")
 			buf.push(h);
-		if(null == bytes) {
-			switch body {
-				case NoBody:
-				case BodyString(s, _):
-					buf.push(Const.CRLF + s);
-				case BodyBytes(b):
-					buf.push(Const.CRLF + b.toString());
-				case BodyInput(s):
-					buf.push(Const.CRLF + s.readAll().toString());
-			}
-		} else if(bytes.length > 0) {
-			buf.push(Const.CRLF + bytes.toString());
+		switch body {
+			case NoBody:
+			case BodyString(s, _):
+				buf.push(Const.CRLF + s);
+			case BodyBytes(b):
+				buf.push(Const.CRLF + b.toString());
+			case BodyInput(s):
+				buf.push(Const.CRLF + s.readAll().toString());
 		}
 		return buf.join(Const.CRLF);
 	}
 
 	public function read() : Promise<Nil> {
-		if(null != bytes) return Promise.nil;
 		switch body {
 			case NoBody:
-				bytes = Bytes.alloc(0);
+			case BodyBytes(_):
 			case BodyString(s, _):
-				bytes = Bytes.ofString(s);
-			case BodyBytes(b):
-				bytes = b;
+				body = BodyBytes(Bytes.ofString(s));
 			case BodyInput(s):
-				bytes = s.readAll();
+				body = BodyBytes(s.readAll());
 		}
 		return Promise.nil;
 	}
