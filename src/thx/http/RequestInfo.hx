@@ -77,20 +77,27 @@ class RequestInfo {
 			case BodyBytes(b):
 				buf.push(Const.CRLF + b.toString());
 			case BodyInput(s):
-				buf.push(Const.CRLF + s.readAll().toString());
+				var b = s.readAll();
+				body = BodyBytes(b);
+				buf.push(Const.CRLF + b.toString());
 		}
 		return buf.join(Const.CRLF);
 	}
 
-	public function read() : Promise<Nil> {
+	public function read() : Promise<Bytes> {
 		switch body {
 			case NoBody:
-			case BodyBytes(_):
+				return Promise.value(Bytes.alloc(0));
+			case BodyBytes(b):
+				return Promise.value(b);
 			case BodyString(s, _):
-				body = BodyBytes(Bytes.ofString(s));
+				var b = Bytes.ofString(s);
+				body = BodyBytes(b);
+				return Promise.value(b);
 			case BodyInput(s):
-				body = BodyBytes(s.readAll());
+				var b = s.readAll();
+				body = BodyBytes(b);
+				return Promise.value(b);
 		}
-		return Promise.nil;
 	}
 }
