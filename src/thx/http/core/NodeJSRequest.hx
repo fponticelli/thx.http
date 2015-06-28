@@ -14,9 +14,8 @@ using thx.stream.Emitter;
 class NodeJSRequest {
 	public static function make(requestInfo : RequestInfo) : Promise<Response> {
 		return Promise.create(function(resolve : Response -> Void, reject) {
-			function callbackResponse(res : IncomingMessage) {
-				resolve(new NodeJSResponse(res));
-			}
+			function callbackResponse(res : IncomingMessage) resolve(new NodeJSResponse(res));
+
 			var url = requestInfo.url,
 					req : js.node.http.ClientRequest = switch url.protocol {
 						case "http":
@@ -44,7 +43,31 @@ class NodeJSRequest {
 				trace("ERROR", e);
 				reject(Error.fromDynamic(e));
 			});
-			req.end();
+			switch requestInfo.body {
+				case NoBody:
+					req.end();
+				case BodyString(s, e):
+					req.write(s, e, function() req.end());
+				case BodyStream(e):
+					e.subscribe(
+						function(bytes) req.write(bytes.toBuffer()),
+						function(cancelled) if(cancelled) {
+							throw "Http Stream cancelled";
+						} else {
+							req.end();
+						}
+					);
+				case BodyInput(i):
+					var size = 8192,
+							buf = Bytes.alloc(size);
+					try while(true) {
+						i.readBytes(buf, 0, size);
+						req.write(buf.toBuffer());
+					} catch(e : haxe.io.Eof) {}
+					req.end();
+				case BodyBytes(b):
+					req.write(b.toBuffer(), function() req.end());
+			}
 		});
 	}
 
