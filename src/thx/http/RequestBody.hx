@@ -7,5 +7,5 @@ enum RequestBody {
 	NoBody;
 	BodyString(s : String, ?encoding : String);
 	BodyBytes(b : Bytes);
-	BodyStream(s : Input);
+	BodyInput(s : Input);
 }

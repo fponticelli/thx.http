@@ -73,8 +73,8 @@ class RequestInfo {
 				buf.push(Const.CRLF + s);
 			case BodyBytes(b):
 				buf.push(Const.CRLF + b.toString());
-			case BodyStream(s):
 				buf.push(Const.CRLF + s.readAll().toString());
+			case BodyInput(s):
 		}
 		return buf.join(Const.CRLF);
 	}
