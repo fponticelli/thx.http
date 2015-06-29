@@ -40,20 +40,29 @@ class Html5Request {
 			switch requestInfo.body {
 				case NoBody:
 					req.send();
-				case BodyString(s, e):
-					req.send(s);
-				case BodyBytes(b):
-					req.send(b); // TODO needs conversion
-				case BodyStream(s):
+				case BodyInput(i):
 					try {
 						var b;
-						while((b = s.read(8192)).length > 0) {
+						while((b = i.read(8192)).length > 0) {
 							req.send(b.getData());
 						}
 					} catch(e : haxe.io.Eof) {
 						req.send(); // TODO is this needed?
 					}
-					req.send(s); // TODO needs conversion
+					//req.send(s); // TODO needs conversion
+				case BodyString(s, e):
+					req.send(s);
+				case BodyStream(e):
+					e.subscribe(
+						function(bytes) req.send(bytes.getData()),
+						function(cancelled) if(cancelled) {
+							throw "Http Stream cancelled";
+						} else {
+							req.send();
+						}
+					);
+				case BodyBytes(b):
+					req.send(b.getData()); // TODO needs conversion
 				}
 		});
 	}
