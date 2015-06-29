@@ -5,8 +5,7 @@ class TestServer implements abe.IRoute {
 				router = app.router;
 		router.use(mw.Cors.create());
 		router.register(new TestServer());
-		var server : js.node.http.Server = null;
-		server = app.http(8081);
+		app.http(8081);
 	}
 
 	@:get("/")
@@ -15,12 +14,19 @@ class TestServer implements abe.IRoute {
 		response.status(200).send("OK");
 	}
 
-	@:post("/")
-	@:use(mw.BodyParser.text())
-	function bounce() {
-		var content = Reflect.field(request.query, "q");
-		trace('SEND: $content');
-		response.status(200).send(content);
+	@:post("/qs")
+	@:args(Query, Body)
+	function bounceQs(q : String) {
+		trace('QUERY', q);
+		response.status(200).send(q);
+	}
+
+	@:post("/json")
+	@:use(mw.BodyParser.json())
+	//@:args(Body)
+	function bounceJson() {
+		trace('BODY', request.body);
+		response.status(200).send(Reflect.field(request.body, "q"));
 	}
 
 	@:get("/nocontent")
