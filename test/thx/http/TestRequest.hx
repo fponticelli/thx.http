@@ -24,10 +24,25 @@ class TestRequest {
 			.always(done);
 	}
 
+	public function testQueryStringBody() {
+		var message = "request thx body",
+				done = Assert.createAsync(),
+				info = new RequestInfo(Post, 'http://localhost:8081/qs?q=$message', NoBody);
+
+		Request.make(info)
+			.mapSuccessPromise(function(r) {
+				Assert.equals(200, r.statusCode);
+				return r.asString();
+			})
+			.success(function(r) Assert.equals(message, r))
+			.failure(function(e) Assert.fail('$e'))
+			.always(done);
+	}
+
 	public function testStringBody() {
 		var message = "request thx body",
 				done = Assert.createAsync(),
-				info = new RequestInfo(Post, 'http://localhost:8081/?q=$message', NoBody);
+				info = new RequestInfo(Post, 'http://localhost:8081/json', BodyString('{"q":"$message"}'));
 
 		Request.make(info)
 			.mapSuccessPromise(function(r) {
