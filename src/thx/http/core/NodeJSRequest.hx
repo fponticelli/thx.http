@@ -46,8 +46,10 @@ class NodeJSRequest {
 			switch requestInfo.body {
 				case NoBody:
 					req.end();
+				case BodyString(s, null):
+					req.end(s);
 				case BodyString(s, e):
-					req.write(s, e, function() req.end());
+					req.end(s, e);
 				case BodyStream(e):
 					e.subscribe(
 						function(bytes) req.write(bytes.toBuffer()),
@@ -58,15 +60,16 @@ class NodeJSRequest {
 						}
 					);
 				case BodyInput(i):
-					var size = 8192,
-							buf = Bytes.alloc(size);
-					try while(true) {
-						i.readBytes(buf, 0, size);
-						req.write(buf.toBuffer());
-					} catch(e : haxe.io.Eof) {}
-					req.end();
+					try {
+						var b, size = 8192;
+						while((b = i.read(size)).length > 0) {
+							req.write(b.toBuffer());
+						}
+					} catch(e : haxe.io.Eof) {
+						req.end();
+					}
 				case BodyBytes(b):
-					req.write(b.toBuffer(), function() req.end());
+					req.end(b.toBuffer());
 			}
 		});
 	}
