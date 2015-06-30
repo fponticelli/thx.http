@@ -7,6 +7,7 @@ using thx.Error;
 import thx.error.*;
 import thx.http.Header;
 using thx.promise.Promise;
+using thx.stream.Emitter;
 import thx.stream.*;
 import haxe.io.Bytes;
 
@@ -35,14 +36,9 @@ class Html5Request {
           case BodyString(s, e):
             req.send(s);
           case BodyStream(e):
-            e.subscribe(
-              function(bytes) req.send(bytes.getData()),
-              function(cancelled) if(cancelled) {
-                throw "Http Stream cancelled";
-              } else {
-                req.send();
-              }
-            );
+            e.toPromise()
+              .success(function(bytes) req.send(bytes.getData()))
+              .failure(function(e) throw e);
           case BodyBytes(b):
             req.send(b.getData()); // TODO needs conversion
         }
