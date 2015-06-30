@@ -117,9 +117,17 @@ class TestRequest {
 				msg.set(i, Math.floor(31 + Math.random() * 95));
 				message.set(j * size + i, msg.get(i));
 			}
+			#if neko
+			emitter.pulse(msg);
+			#else
 			thx.Timer.delay(function() emitter.pulse(msg), 50 * (j + 1));
+			#end
 		});
+		#if neko
+		emitter.end();
+		#else
 		thx.Timer.delay(function() emitter.end(), 50 * (chunks + 2));
+		#end
 
     Request.make(info)
       .mapSuccessPromise(function(r) {
