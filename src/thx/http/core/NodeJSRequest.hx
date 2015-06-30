@@ -60,14 +60,20 @@ class NodeJSRequest {
 						}
 					);
 				case BodyInput(i):
-					try {
-						var b, size = 8192;
-						while((b = i.read(size)).length > 0) {
-							req.write(b.toBuffer());
+					var size = 8192,
+							buf = Bytes.alloc(size),
+							len;
+
+					while(true) {
+						len = i.readBytes(buf, 0, size);
+						if(len < size) {
+							req.write(buf.sub(0, len).toBuffer());
+							break;
+						} else {
+							req.write(buf.toBuffer());
 						}
-					} catch(e : haxe.io.Eof) {
-						req.end();
 					}
+					req.end();
 				case BodyBytes(b):
 					req.end(b.toBuffer());
 			}
