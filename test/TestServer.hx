@@ -29,6 +29,13 @@ class TestServer implements abe.IRoute {
 		response.status(200).send(Reflect.field(request.body, "q"));
 	}
 
+	@:post("/raw")
+	@:use(mw.BodyParser.text())
+	function bounceRaw() {
+		trace("RAW");
+		response.status(200).send(request.body);
+	}
+
 	@:get("/nocontent")
 	function nocontent() {
 		trace('SEND: NO CONTENT');
