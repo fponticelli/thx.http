@@ -7,6 +7,6 @@
 -neko bin/test.n
 -main TestAll
 
--cmd haxe run-server.hxml
+-cmd ./start.sh
 -cmd neko bin/test.n
--cmd haxe stop-server.hxml
+-cmd ./stop.sh

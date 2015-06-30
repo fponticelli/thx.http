@@ -7,7 +7,7 @@
 -js bin/test-browser.js
 -main TestAll
 
--cmd haxe run-server.hxml
+-cmd ./start.sh
 -cmd open bin/index.html
 -cmd sleep 4
--cmd haxe stop-server.hxml
+-cmd ./stop.sh
