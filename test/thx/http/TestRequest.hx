@@ -1,9 +1,12 @@
 package thx.http;
 
+import haxe.io.Bytes;
 import utest.Assert;
 import thx.http.RequestBody;
 using thx.http.Request;
 using thx.stream.Emitter;
+using thx.stream.Bus;
+using thx.Arrays;
 
 class TestRequest {
   public function new() {}
@@ -51,6 +54,79 @@ class TestRequest {
         return r.asString();
       })
       .success(function(r) Assert.equals(message, r))
+      .failure(function(e) Assert.fail('$e'))
+      .always(done);
+  }
+
+  public function testBytesBody() {
+    var size = 50000,
+				message = Bytes.alloc(size),
+        done = Assert.createAsync(),
+        info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyBytes(message));
+
+		info.headers.add("Content-Type", "text/plain");
+
+		for(i in 0...size)
+			message.set(i, Math.floor(31 + Math.random() * 95));
+
+    Request.make(info)
+      .mapSuccessPromise(function(r) {
+        Assert.equals(200, r.statusCode);
+        return r.asString();
+      })
+      .success(function(r) Assert.same(message.toString(), r))
+      .failure(function(e) Assert.fail('$e'))
+      .always(done);
+  }
+
+  public function testInputBody() {
+    var size = 50000,
+				message = Bytes.alloc(size),
+        done = Assert.createAsync(),
+				input = new haxe.io.BytesInput(message),
+        info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyInput(input));
+
+		info.headers.add("Content-Type", "text/plain");
+
+		for(i in 0...size)
+			message.set(i, Math.floor(31 + Math.random() * 95));
+
+    Request.make(info)
+      .mapSuccessPromise(function(r) {
+        Assert.equals(200, r.statusCode);
+        return r.asString();
+      })
+      .success(function(r) Assert.same(message.toString(), r))
+      .failure(function(e) Assert.fail('$e'))
+      .always(done);
+  }
+
+  public function testStreamBody() {
+    var size = 10000,
+				chunks = 10,
+				messages = [for(i in 0...chunks) Bytes.alloc(size)],
+				message = Bytes.alloc(size * chunks),
+        done = Assert.createAsync(3000),
+				emitter : Bus<Bytes> = new Bus(),
+        info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyStream(emitter));
+
+		info.headers.add("Content-Type", "text/plain");
+
+		messages.mapi(function(msg, j) {
+			for(i in 0...size) {
+				msg.set(i, Math.floor(31 + Math.random() * 95));
+				message.set(j * size + i, msg.get(i));
+			}
+			thx.Timer.delay(function() emitter.pulse(msg), 50 * (j + 1));
+		});
+		thx.Timer.delay(function() emitter.end(), 50 * (chunks + 2));
+
+    Request.make(info)
+      .mapSuccessPromise(function(r) {
+        Assert.equals(200, r.statusCode);
+        return r.asString();
+      })
+      .success(function(r) Assert.same(message.toString(), r))
       .failure(function(e) Assert.fail('$e'))
       .always(done);
   }
