@@ -23,16 +23,8 @@ class Html5Request {
         switch requestInfo.body {
           case NoBody:
             req.send();
-          case BodyInput(i):
-            try {
-              var b;
-              while((b = i.read(8192)).length > 0) {
-                req.send(b.getData());
-              }
-            } catch(e : haxe.io.Eof) {
-              req.send(); // TODO is this needed?
-            }
-            req.send(); // TODO needs conversion
+  				case BodyInput(i):
+  					req.send(i.readAll().getData());
           case BodyString(s, e):
             req.send(s);
           case BodyStream(e):
