@@ -9,4 +9,6 @@
 -js bin/test.js
 -main TestAll
 
+-cmd haxe run-server.hxml
 -cmd node bin/test.js
+-cmd haxe stop-server.hxml

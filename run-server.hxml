@@ -1,0 +1,3 @@
+-cmd haxe build-server.hxml
+-cmd "pm2 start bin/test-server.js --name api -f"
+-cmd "sleep 1"
