@@ -14,14 +14,12 @@ class HaxeRequest {
       (requestInfo.headers : Array<Header>)
         .map.fn(req.addHeader(_.key, _.value));
 
-      switch requestInfo.body {
-        case BodyString(s, _): // TODO encoding
-          req.setPostData(s);
-        case BodyBytes(b):
-          req.setPostData(b.toString());
-        case BodyStream(s):
-          req.setPostData(s.readAll().toString());
-        case NoBody: // do nothing
+      function send() {
+        switch requestInfo.method {
+          case Get:   req.request(false);
+          case Post:  req.request(true);
+          case other: throw 'haxe.Http doesn\'t support method "$other"';
+        }
       }
 
       var data = null,
@@ -41,10 +39,26 @@ class HaxeRequest {
         reject(new thx.Error(msg));
       };
 
-      switch requestInfo.method {
-        case Get:   req.request(false);
-        case Post:  req.request(true);
-        case other: throw 'haxe.Http doesn\'t support method "$other"';
+      switch requestInfo.body {
+        case BodyString(s, _): // TODO encoding
+          req.setPostData(s);
+          send();
+        case BodyBytes(b):
+          send();
+          req.setPostData(b.toString());
+          send();
+        case BodyInput(i):
+          req.setPostData(i.readAll().toString());
+          send();
+        case BodyStream(e):
+          e.toPromise()
+            .success(function(bytes) {
+              req.setPostData(bytes.toString());
+              send();
+            })
+            .failure(function(e) throw e);
+        case NoBody: // do nothing
+          send();
       }
     });
   }
