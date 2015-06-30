@@ -34,4 +34,10 @@ class TestServer implements abe.IRoute {
 		trace('SEND: NO CONTENT');
 		response.sendStatus(204);
 	}
+
+	@:get("/shutdown")
+	function shutdown() {
+		response.sendStatus(204);
+		js.Node.process.exit(0);
+	}
 }
