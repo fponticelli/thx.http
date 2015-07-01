@@ -100,7 +100,7 @@ class TestRequest {
       .failure(function(e) Assert.fail('$e'))
       .always(done);
   }
-
+#if !neko
   public function testStreamBody() {
     var size = 10000,
         chunks = 10,
@@ -138,7 +138,7 @@ class TestRequest {
       .failure(function(e) Assert.fail('$e'))
       .always(done);
   }
-
+#end
   public function testNoContent() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/nocontent", [
