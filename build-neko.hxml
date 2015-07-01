@@ -8,5 +8,6 @@
 -main TestAll
 
 -cmd ./start.sh
+-cmd sleep 1
 -cmd neko bin/test.n
 -cmd ./stop.sh
