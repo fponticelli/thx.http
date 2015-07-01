@@ -44,7 +44,6 @@ class HaxeRequest {
           req.setPostData(s);
           send();
         case BodyBytes(b):
-          send();
           req.setPostData(b.toString());
           send();
         case BodyInput(i):
