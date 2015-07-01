@@ -4,6 +4,7 @@ using thx.Arrays;
 using thx.Functions;
 using thx.Strings;
 using thx.promise.Promise;
+using thx.stream.Bus;
 using thx.stream.Emitter;
 import haxe.io.Bytes;
 
@@ -22,16 +23,15 @@ class HaxeRequest {
         }
       }
 
+      trace('request ${requestInfo.url}');
       var data = null,
-          emitter = new Emitter(function(stream){
-            if(null != data)
-              stream.pulse(data);
-            stream.end();
-          });
+          emitter = new Bus();
       req.onData = function(d : String) {
+        trace("onData " + d.length);
         data = Bytes.ofString(d);
       };
       req.onStatus = function(s) {
+        trace("onStatus " + s);
         resolve(new HaxeResponse(s, emitter, req.responseHeaders));
       };
       req.onError = function(msg) {
@@ -60,6 +60,10 @@ class HaxeRequest {
         case NoBody: // do nothing
           send();
       }
+      trace("after send");
+      if(null != data && data.length > 0)
+        emitter.pulse(data);
+      emitter.end();
     });
   }
 }

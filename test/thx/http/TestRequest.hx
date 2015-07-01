@@ -60,14 +60,14 @@ class TestRequest {
 
   public function testBytesBody() {
     var size = 50000,
-				message = Bytes.alloc(size),
+        message = Bytes.alloc(size),
         done = Assert.createAsync(),
         info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyBytes(message));
 
-		info.headers.add("Content-Type", "text/plain");
+    info.headers.add("Content-Type", "text/plain");
 
-		for(i in 0...size)
-			message.set(i, Math.floor(31 + Math.random() * 95));
+    for(i in 0...size)
+      message.set(i, Math.floor(31 + Math.random() * 95));
 
     Request.make(info)
       .mapSuccessPromise(function(r) {
@@ -81,15 +81,15 @@ class TestRequest {
 
   public function testInputBody() {
     var size = 50000,
-				message = Bytes.alloc(size),
+        message = Bytes.alloc(size),
         done = Assert.createAsync(),
-				input = new haxe.io.BytesInput(message),
+        input = new haxe.io.BytesInput(message),
         info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyInput(input));
 
-		info.headers.add("Content-Type", "text/plain");
+    info.headers.add("Content-Type", "text/plain");
 
-		for(i in 0...size)
-			message.set(i, Math.floor(31 + Math.random() * 95));
+    for(i in 0...size)
+      message.set(i, Math.floor(31 + Math.random() * 95));
 
     Request.make(info)
       .mapSuccessPromise(function(r) {
@@ -103,31 +103,31 @@ class TestRequest {
 
   public function testStreamBody() {
     var size = 10000,
-				chunks = 10,
-				messages = [for(i in 0...chunks) Bytes.alloc(size)],
-				message = Bytes.alloc(size * chunks),
+        chunks = 10,
+        messages = [for(i in 0...chunks) Bytes.alloc(size)],
+        message = Bytes.alloc(size * chunks),
         done = Assert.createAsync(3000),
-				emitter : Bus<Bytes> = new Bus(),
+        emitter : Bus<Bytes> = new Bus(),
         info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyStream(emitter));
 
-		info.headers.add("Content-Type", "text/plain");
+    info.headers.add("Content-Type", "text/plain");
 
-		messages.mapi(function(msg, j) {
-			for(i in 0...size) {
-				msg.set(i, Math.floor(31 + Math.random() * 95));
-				message.set(j * size + i, msg.get(i));
-			}
-			#if neko
-			emitter.pulse(msg);
-			#else
-			thx.Timer.delay(function() emitter.pulse(msg), 50 * (j + 1));
-			#end
-		});
-		#if neko
-		emitter.end();
-		#else
-		thx.Timer.delay(function() emitter.end(), 50 * (chunks + 2));
-		#end
+    messages.mapi(function(msg, j) {
+      for(i in 0...size) {
+        msg.set(i, Math.floor(31 + Math.random() * 95));
+        message.set(j * size + i, msg.get(i));
+      }
+      #if neko
+      emitter.pulse(msg);
+      #else
+      thx.Timer.delay(function() emitter.pulse(msg), 50 * (j + 1));
+      #end
+    });
+    #if neko
+    emitter.end();
+    #else
+    thx.Timer.delay(function() emitter.end(), 50 * (chunks + 2));
+    #end
 
     Request.make(info)
       .mapSuccessPromise(function(r) {

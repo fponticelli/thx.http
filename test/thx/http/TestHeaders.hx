@@ -4,5 +4,5 @@ import utest.Assert;
 using thx.http.Headers;
 
 class TestHeaders {
-	public function new() {}
+  public function new() {}
 }

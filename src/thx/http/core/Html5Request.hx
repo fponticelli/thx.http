@@ -23,8 +23,8 @@ class Html5Request {
         switch requestInfo.body {
           case NoBody:
             req.send();
-  				case BodyInput(i):
-  					req.send(i.readAll().getData());
+          case BodyInput(i):
+            req.send(i.readAll().getData());
           case BodyString(s, e):
             req.send(s);
           case BodyStream(e):
