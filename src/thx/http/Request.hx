@@ -14,4 +14,8 @@ class Request {
     return thx.http.core.HaxeRequest.make(requestInfo);
 #end
   }
+
+  public static function get(url : String) : Promise<Response> {
+    return make(new RequestInfo(Get, url));
+  }
 }
