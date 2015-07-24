@@ -15,7 +15,6 @@ class Request {
 #end
   }
 
-  public static function get(url : String) : Promise<Response> {
+  public static function get(url : String) : Promise<Response>
     return make(new RequestInfo(Get, url));
-  }
 }
