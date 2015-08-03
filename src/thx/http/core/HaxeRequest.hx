@@ -27,7 +27,8 @@ class HaxeRequest {
             if(null != data)
               stream.pulse(data);
             stream.end();
-          });
+          }),
+          errored = false;
       req.onData = function(d : String) {
         data = Bytes.ofString(d);
       };
@@ -35,6 +36,9 @@ class HaxeRequest {
         resolve(new HaxeResponse(s, emitter, req.responseHeaders));
       };
       req.onError = function(msg) {
+        // is onError firing twice?
+        if(errored) return;
+        errored = true;
         trace('ERROR: $msg');
         reject(new thx.Error(msg));
       };
