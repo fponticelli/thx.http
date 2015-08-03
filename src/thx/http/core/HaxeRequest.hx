@@ -28,17 +28,19 @@ class HaxeRequest {
               stream.pulse(data);
             stream.end();
           }),
-          errored = false;
+          completed = false;
       req.onData = function(d : String) {
         data = Bytes.ofString(d);
       };
       req.onStatus = function(s) {
+        if(completed) return;
+        completed = true;
         resolve(new HaxeResponse(s, emitter, req.responseHeaders));
       };
       req.onError = function(msg) {
         // is onError firing twice?
-        if(errored) return;
-        errored = true;
+        if(completed) return;
+        completed = true;
         trace('ERROR: $msg');
         reject(new thx.Error(msg));
       };
