@@ -23,7 +23,7 @@ class NodeJSRequest {
                 hostname: url.hostName,
                 port: url.port,
                 method: (requestInfo.method : String),
-                path: url.path,
+                path: '/${url.path}',
                 headers: requestInfo.headers.toObject()
                 //auth: Basic authentication i.e. 'user:password' to compute an Authorization header.
               }, callbackResponse);
@@ -32,7 +32,7 @@ class NodeJSRequest {
                 hostname: url.hostName,
                 port: url.port,
                 method: (requestInfo.method : String),
-                path: url.path,
+                path: '/${url.path}',
                 headers: requestInfo.headers.toObject()
                 //auth: Basic authentication i.e. 'user:password' to compute an Authorization header.
               }, callbackResponse);
