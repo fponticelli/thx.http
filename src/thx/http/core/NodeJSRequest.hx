@@ -16,13 +16,14 @@ class NodeJSRequest {
       function callbackResponse(res : IncomingMessage) resolve(new NodeJSResponse(res));
 
       var url = requestInfo.url,
+          path = url.path.substring(0, 1) != "/" ? '/${url.path}' : url.path,
           req : js.node.http.ClientRequest = switch url.protocol {
             case "http":
               Http.request({
                 hostname: url.hostName,
                 port: url.port,
                 method: (requestInfo.method : String),
-                path: '/${url.path}',
+                path: path,
                 headers: requestInfo.headers.toObject()
                 //auth: Basic authentication i.e. 'user:password' to compute an Authorization header.
               }, callbackResponse);
@@ -31,7 +32,7 @@ class NodeJSRequest {
                 hostname: url.hostName,
                 port: url.port,
                 method: (requestInfo.method : String),
-                path: '/${url.path}',
+                path: path,
                 headers: requestInfo.headers.toObject()
                 //auth: Basic authentication i.e. 'user:password' to compute an Authorization header.
               }, callbackResponse);
