@@ -6,7 +6,6 @@ import js.node.http.IncomingMessage;
 import js.node.Buffer;
 import haxe.io.Bytes;
 import thx.Error;
-using thx.nodejs.io.Buffers;
 using thx.promise.Promise;
 using thx.stream.Bus;
 using thx.stream.Emitter;
@@ -52,7 +51,7 @@ class NodeJSRequest {
           req.end(s, e);
         case BodyStream(e):
           e.subscribe(
-            function(bytes) req.write(bytes.toBuffer()),
+            function(bytes) req.write(bytes.getData()),
             function(cancelled) if(cancelled) {
               throw "Http Stream cancelled";
             } else {
@@ -67,15 +66,15 @@ class NodeJSRequest {
           while(true) {
             len = i.readBytes(buf, 0, size);
             if(len < size) {
-              req.write(buf.sub(0, len).toBuffer());
+              req.write(buf.sub(0, len).getData());
               break;
             } else {
-              req.write(buf.toBuffer());
+              req.write(buf.getData());
             }
           }
           req.end();
         case BodyBytes(b):
-          req.end(b.toBuffer());
+          req.end(b.getData());
       }
     });
   }
@@ -89,7 +88,7 @@ class NodeJSResponse extends thx.http.Response {
     res.on("readable", function() {
       var buf : Buffer = res.read();
       if(buf != null)
-        bus.pulse(buf.toBytes());
+        bus.pulse(Bytes.ofData(buf));
     });
     res.on("end", function() {
       bus.end();

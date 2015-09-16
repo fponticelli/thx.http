@@ -10,7 +10,6 @@
   "contributors": ["fponticelli"],
   "dependencies": {
     "thx.core": "",
-    "thx.nodejs": "",
     "thx.promise": "",
     "thx.stream": ""
   }

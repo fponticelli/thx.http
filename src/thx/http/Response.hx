@@ -79,7 +79,8 @@ class Response {
     return emitter.toPromise();
 
   public function asString() : Promise<String>
-    return asBytes().mapSuccess(function(b) return b.toString());
+    return asBytes()
+      .mapSuccess(function(b : Bytes) return b.toString());
 
   function get_statusCode() : Int
     return throw new AbstractMethod();
