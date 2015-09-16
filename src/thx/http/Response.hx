@@ -86,4 +86,8 @@ class Response {
     return throw new AbstractMethod();
   function get_statusText() : String
     return statusCodes[statusCode];
+
+  public function toString() {
+    return '$statusCode: $statusText\n$headers';
+  }
 }
