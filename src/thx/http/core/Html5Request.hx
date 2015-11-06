@@ -35,6 +35,7 @@ class Html5Request {
             req.send(b.getData()); // TODO needs conversion
         }
       }
+      var sent = false;
       req.onload = function(e) {
         if(req.response == null || req.response.length == 0) {
           bus.end();
@@ -42,6 +43,8 @@ class Html5Request {
           bus.pulse(Bytes.ofData(req.response));
           bus.end();
         }
+        if(sent) return;
+        sent = true;
         resolve(new Html5Response(req, bus));
       };
 
@@ -53,6 +56,8 @@ class Html5Request {
         if(req.readyState != 2) {// 2: request received
           return;
         }
+        if(sent) return;
+        sent = true;
         resolve(new Html5Response(req, bus));
       };
 
