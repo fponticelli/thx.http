@@ -69,7 +69,7 @@ abstract Headers(Array<Header>) from Array<Header> to Array<Header> {
   public function set(key : String, value : String) {
     var p = getHeader(key);
     if(null == p)
-      add(key, value);
+      this.push(Header.fromTuple(new Tuple2(key, value)));
     else
       p.value = value;
   }
