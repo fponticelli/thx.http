@@ -52,7 +52,7 @@ class NodeJSRequest {
           req.end(s, e);
         case BodyStream(e):
           e.subscribe(
-            function(bytes) req.write(bytes.getData()),
+            function(bytes) req.write(arrayBufferToBuffer(bytes.getData())),
             function(cancelled) if(cancelled) {
               throw "Http Stream cancelled";
             } else {
@@ -67,17 +67,29 @@ class NodeJSRequest {
           while(true) {
             len = i.readBytes(buf, 0, size);
             if(len < size) {
-              req.write(buf.sub(0, len).getData());
+              req.write(arrayBufferToBuffer(buf.sub(0, len).getData()));
               break;
             } else {
-              req.write(buf.getData());
+              req.write(arrayBufferToBuffer(buf.getData()));
             }
           }
           req.end();
         case BodyBytes(b):
-          req.end(b.getData());
+          req.end(arrayBufferToBuffer(b.getData()));
       }
     });
+  }
+
+  static function arrayBufferToString(ab : js.html.ArrayBuffer) : String {
+    return (untyped __js__("String")).fromCharCode.apply(null, new js.html.Uint16Array(ab));
+  }
+
+  static function arrayBufferToBuffer(ab : js.html.ArrayBuffer) : Buffer {
+    var buffer = new Buffer(ab.byteLength);
+    var view = new js.html.Uint8Array(ab);
+    for(i in 0...buffer.length)
+      buffer[i] = view[i];
+    return buffer;
   }
 }
 class NodeJSResponse extends thx.http.Response {
@@ -89,12 +101,20 @@ class NodeJSResponse extends thx.http.Response {
     res.on("readable", function() {
       var buf : Buffer = res.read();
       if(buf != null)
-        bus.pulse(Bytes.ofData(buf));
+        bus.pulse(Bytes.ofData(bufferToArrayBuffer(buf)));
     });
     res.on("end", function() {
       bus.end();
     });
     this.emitter = bus;
+  }
+
+  static function bufferToArrayBuffer(buf : Buffer) : js.html.ArrayBuffer {
+    var ab = new js.html.ArrayBuffer(buf.length);
+    var view = new js.html.Uint8Array(ab);
+    for(i in 0...buf.length)
+      view[i] = buf[i];
+    return ab;
   }
 
   override function get_statusCode() return res.statusCode;

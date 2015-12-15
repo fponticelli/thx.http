@@ -59,7 +59,7 @@ class TestRequest {
   }
 
   public function testBytesBody() {
-    var size = 50000,
+    var size = 100,
         message = Bytes.alloc(size),
         done = Assert.createAsync(),
         info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyBytes(message));
