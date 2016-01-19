@@ -6,7 +6,7 @@ using thx.promise.Promise;
 using thx.stream.Emitter;
 
 class Response {
-  static var statusCodes(default, null) = [
+  public static var statusCodes(default, null) = [
     100 => "Continue",
     101 => "Switching Protocols",
     102 => "Processing",
