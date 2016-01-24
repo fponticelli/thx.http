@@ -9,6 +9,8 @@ import thx.Error;
 using thx.promise.Promise;
 using thx.stream.Bus;
 using thx.stream.Emitter;
+import thx.Objects;
+using thx.Arrays;
 
 class NodeJSRequest {
   public static function make(requestInfo : RequestInfo) : Promise<Response> {
@@ -96,7 +98,17 @@ class NodeJSResponse extends thx.http.Response {
   var res : IncomingMessage;
   public function new(res : IncomingMessage) {
     this.res = res;
-    headers = res.headers;
+    var h = {};
+    Objects.tuples(cast res.headers).each(function(t) {
+      if(Std.is(t._1, String)) {
+        Reflect.setField(h, t._0, t._1);
+      } else if(Std.is(t._1, Array)) {
+        Reflect.setField(h, t._0, (t._1 : Array<String>).join(" "));
+      } else {
+        throw 'unable to convert header value ${t._1}';
+      }
+    });
+    headers = h;
     var bus = new Bus();
     res.on("readable", function() {
       var buf : Buffer = res.read();
