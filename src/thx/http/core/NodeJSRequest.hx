@@ -98,11 +98,6 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
     request.abort();
     return this;
   }
-
-  override function onProgress(f : Progress -> Void) {
-    // TODO
-    return this;
-  }
 }
 
 class NodeJSResponse<T> extends thx.http.Response<T> {

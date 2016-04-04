@@ -24,8 +24,4 @@ class Request<T> {
   public function abort() : Request<T> {
     return this;
   }
-
-  public function onProgress(handler : Progress -> Void) : Request<T> {
-    return this;
-  }
 }
