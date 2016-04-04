@@ -6,6 +6,7 @@ enum ResponseType<T> {
   ResponseTypeBytes : ResponseType<haxe.io.Bytes>;
   ResponseTypeNoBody : ResponseType<Nil>;
   ResponseTypeText : ResponseType<String>;
+  ResponseTypeJson : ResponseType<Dynamic>;
 #if(nodejs || hxnodejs)
   ResponseTypeJSBuffer : ResponseType<js.node.Buffer>;
   // TODO NodeJS pipes

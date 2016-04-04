@@ -165,6 +165,23 @@ class TestRequest {
       .failure(function(e) Assert.fail("should never reach this point"));
   }
 
+  public function testJsonResponse() {
+    var done = Assert.createAsync(),
+        info = new RequestInfo(Get, "http://localhost:8081/json", ["Agent" => "thx.http.Request"]);
+
+    Request.make(info, ResponseTypeJson)
+      .response
+      .mapSuccessPromise(function(r) {
+        Assert.equals(200, r.statusCode);
+        return r.body;
+      })
+      .success(function(r) {
+        Assert.equals("OK", r.message);
+      })
+      .failure(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+
   public function testBytesResponse() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/", ["Agent" => "thx.http.Request"]);

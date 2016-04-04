@@ -39,6 +39,7 @@ abstract RequestBody(RequestBodyImpl) from RequestBodyImpl to RequestBodyImpl {
 }
 
 enum RequestBodyImpl {
+  // TODO JSON
   NoBody;
   BodyString(s : String, ?encoding : String);
   BodyBytes(b : Bytes);

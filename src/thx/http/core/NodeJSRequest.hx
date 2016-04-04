@@ -109,6 +109,9 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
       case ResponseTypeBytes:
         promiseOfBuffer(response)
           .mapSuccess(NodeJS.bufferToBytes);
+      case ResponseTypeJson:
+        promiseOfText(response)
+          .mapSuccess(haxe.Json.parse);
       case ResponseTypeText:
         promiseOfText(response);
       case ResponseTypeJSBuffer:
