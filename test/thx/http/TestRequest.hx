@@ -164,4 +164,23 @@ class TestRequest {
       })
       .failure(function(e) Assert.fail("should never reach this point"));
   }
+
+#if (nodejs || hxnodejs)
+  public function testBuffer() {
+    var done = Assert.createAsync(),
+        info = new RequestInfo(Get, "http://localhost:8081/", ["Agent" => "thx.http.Request"]);
+
+    Request.make(info, ResponseTypeJSBuffer)
+      .response
+      .mapSuccessPromise(function(r) {
+        Assert.equals(200, r.statusCode);
+        return r.body;
+      })
+      .success(function(r) {
+        Assert.isTrue(null != r.copy, "response is not of type Buffer");
+      })
+      .failure(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+#end
 }
