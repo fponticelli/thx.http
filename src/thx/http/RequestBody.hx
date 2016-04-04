@@ -46,6 +46,7 @@ enum RequestBodyImpl {
   BodyStream(e : Emitter<Bytes>); // TODO NodeJS: Stream of String with and without encoding
 #if(nodejs || hxnodejs)
   BodyJSBuffer(buffer : js.node.Buffer);
+  // TODO NodeJS pipes
 #elseif js
   BodyJSArrayBufferView(buffer : js.html.ArrayBufferView);
   BodyJSBlob(blob : js.html.Blob);
@@ -53,8 +54,3 @@ enum RequestBodyImpl {
   BodyJSFormData(formData : js.html.FormData);
 #end
 }
-
-/*
-TODO add platform specific request bodies
-multipart?
-*/

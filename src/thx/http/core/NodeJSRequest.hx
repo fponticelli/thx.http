@@ -110,13 +110,10 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
   public function new(response : IncomingMessage, responseType : ResponseType<T>) {
     this.response = response;
     this.responseType = responseType;
-    trace(responseType);
     _body = switch responseType {
       case ResponseTypeText:
-        response.setEncoding("utf8");
         promiseOfText(response);
       case ResponseTypeJSBuffer:
-        response.setEncoding(null);
         promiseOfBuffer(response);
       case ResponseTypeNoBody:
         promiseOfNil(response);
@@ -145,7 +142,8 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
   override function get_body() : Promise<T>
     return _body;
 
-  static function promiseOfBuffer(response : IncomingMessage) : Promise<Buffer>
+  static function promiseOfBuffer(response : IncomingMessage) : Promise<Buffer> {
+    // response.setEncoding(null); // tried this and it seems to encode the output as a string. The documentation says otherwise.
     return Promise.create(function(resolve, reject) {
       var buffer = new Buffer(0);
       response.on("readable", function() {
@@ -156,8 +154,10 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
       response.on("end", function() resolve(buffer));
       response.on("error", function(e) reject(thx.Error.fromDynamic(e)));
     });
+  }
 
-  static function promiseOfText(response : IncomingMessage) : Promise<String>
+  static function promiseOfText(response : IncomingMessage) : Promise<String> {
+    response.setEncoding("utf8");
     return Promise.create(function(resolve, reject) {
       var buffer = "";
       response.on("readable", function() {
@@ -168,6 +168,7 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
       response.on("end", function() resolve(buffer));
       response.on("error", function(e) reject(thx.Error.fromDynamic(e)));
     });
+  }
 
   static function promiseOfNil(response : IncomingMessage) : Promise<Nil>
     return Promise.create(function(resolve, reject) {
