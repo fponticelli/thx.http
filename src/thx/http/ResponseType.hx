@@ -3,11 +3,12 @@ package thx.http;
 import thx.Nil;
 
 enum ResponseType<T> {
-  // Bytes : ResponseType<haxe.io.Bytes>;
+  ResponseTypeBytes : ResponseType<haxe.io.Bytes>;
   ResponseTypeNoBody : ResponseType<Nil>;
   ResponseTypeText : ResponseType<String>;
 #if(nodejs || hxnodejs)
   ResponseTypeJSBuffer : ResponseType<js.node.Buffer>;
+  // TODO NodeJS pipes
 #elseif js
     // ResponseTypeArrayBufferView(buffer : js.html.ArrayBufferView); // TODO or ArrayBuffer
     // ResponseTypeBlob(blob : js.html.Blob);

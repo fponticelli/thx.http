@@ -165,6 +165,24 @@ class TestRequest {
       .failure(function(e) Assert.fail("should never reach this point"));
   }
 
+  public function testBytesResponse() {
+    var done = Assert.createAsync(),
+        info = new RequestInfo(Get, "http://localhost:8081/", ["Agent" => "thx.http.Request"]);
+
+    Request.make(info, ResponseTypeBytes)
+      .response
+      .mapSuccessPromise(function(r) {
+        Assert.equals(200, r.statusCode);
+        return r.body;
+      })
+      .success(function(r) {
+        Assert.is(r, haxe.io.Bytes);
+        Assert.equals(2, r.length);
+      })
+      .failure(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+
 #if (nodejs || hxnodejs)
   public function testBuffer() {
     var done = Assert.createAsync(),

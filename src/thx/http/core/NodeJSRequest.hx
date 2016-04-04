@@ -111,6 +111,9 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
     this.response = response;
     this.responseType = responseType;
     _body = switch responseType {
+      case ResponseTypeBytes:
+        promiseOfBuffer(response)
+          .mapSuccess(NodeJS.bufferToBytes);
       case ResponseTypeText:
         promiseOfText(response);
       case ResponseTypeJSBuffer:
