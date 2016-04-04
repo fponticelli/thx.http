@@ -30,6 +30,6 @@ Action=GetStatus&SignatureMethod=HmacSHA256&JobId=JOBID&SignatureVersion=2&Versi
     Assert.equals("application/x-www-form-urlencoded;charset=utf-8", info.headers.get("content-type"));
     Assert.equals("207", info.headers.get("content-length"));
     Assert.isFalse(info.headers.exists("host"));
-    Assert.same(RequestBody.BodyString("Action=GetStatus&SignatureMethod=HmacSHA256&JobId=JOBID&SignatureVersion=2&Version=2014-12-18&Signature=%2FVfkltRBOoSUi1sWxRzN8rw%3D&Timestamp=2014-12-20T22%3A30%3A59.556Z"), info.body);
+    Assert.same(RequestBody.fromString("Action=GetStatus&SignatureMethod=HmacSHA256&JobId=JOBID&SignatureVersion=2&Version=2014-12-18&Signature=%2FVfkltRBOoSUi1sWxRzN8rw%3D&Timestamp=2014-12-20T22%3A30%3A59.556Z"), info.body);
   }
 }

@@ -5,7 +5,7 @@ import thx.error.AbstractMethod;
 using thx.promise.Promise;
 using thx.stream.Emitter;
 
-class Response {
+class Response<T> {
   public static var statusCodes(default, null) = [
     100 => "Continue",
     101 => "Switching Protocols",
@@ -70,24 +70,19 @@ class Response {
 
   public var statusCode(get, null) : Int;
   public var statusText(get, null) : String;
-  public var headers(default, null) : Headers;
-  public var emitter(default, null) : Emitter<Bytes>;
+  public var headers(get, null) : Headers;
+  public var body(get, null) : Promise<T>;
+  public var responseType(default, null) : ResponseType<T>;
 
-  // public function cancel() : Void {}
-
-  public function asBytes() : Promise<Bytes>
-    return emitter.toPromise();
-
-  public function asString() : Promise<String>
-    return asBytes()
-      .mapSuccess(function(b : Bytes) return b.toString());
+  public function toString() : String
+    return '$statusCode: $statusText\n$headers';
 
   function get_statusCode() : Int
     return throw new AbstractMethod();
   function get_statusText() : String
     return statusCodes[statusCode];
-
-  public function toString() {
-    return '$statusCode: $statusText\n$headers';
-  }
+  function get_headers() : Headers
+    return throw new AbstractMethod();
+  function get_body() : Promise<T>
+    return throw new AbstractMethod();
 }

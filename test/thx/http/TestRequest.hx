@@ -17,10 +17,11 @@ class TestRequest {
             "Agent" => "thx.http.Request"
           ]);
 
-    Request.make(info)
+    Request.make(info, ResponseTypeText)
+      .response
       .mapSuccessPromise(function(r) {
         Assert.equals(200, r.statusCode);
-        return r.asString();
+        return r.body;
       })
       .success(function(r) Assert.equals("OK", r))
       .failure(function(e) Assert.fail("should never reach this point"))
@@ -32,10 +33,11 @@ class TestRequest {
         done = Assert.createAsync(),
         info = new RequestInfo(Post, 'http://localhost:8081/qs?q=$message', NoBody);
 
-    Request.make(info)
+    Request.make(info, ResponseTypeText)
+      .response
       .mapSuccessPromise(function(r) {
         Assert.equals(200, r.statusCode);
-        return r.asString();
+        return r.body;
       })
       .success(function(r) Assert.equals(message, r))
       .failure(function(e) Assert.fail('$e'))
@@ -48,10 +50,11 @@ class TestRequest {
         info = new RequestInfo(Post, 'http://localhost:8081/json', BodyString('{"q":"$message"}'));
     info.headers.add("Content-Type", "application/json");
 
-    Request.make(info)
+    Request.make(info, ResponseTypeText)
+      .response
       .mapSuccessPromise(function(r) {
         Assert.equals(200, r.statusCode);
-        return r.asString();
+        return r.body;
       })
       .success(function(r) Assert.equals(message, r))
       .failure(function(e) Assert.fail('$e'))
@@ -69,10 +72,11 @@ class TestRequest {
     for(i in 0...size)
       message.set(i, Math.floor(31 + Math.random() * 95));
 
-    Request.make(info)
+    Request.make(info, ResponseTypeText)
+      .response
       .mapSuccessPromise(function(r) {
         Assert.equals(200, r.statusCode);
-        return r.asString();
+        return r.body;
       })
       .success(function(r) Assert.same(message.toString(), r))
       .failure(function(e) Assert.fail('$e'))
@@ -91,10 +95,11 @@ class TestRequest {
     for(i in 0...size)
       message.set(i, Math.floor(31 + Math.random() * 95));
 
-    Request.make(info)
+    Request.make(info, ResponseTypeText)
+      .response
       .mapSuccessPromise(function(r) {
         Assert.equals(200, r.statusCode);
-        return r.asString();
+        return r.body;
       })
       .success(function(r) Assert.same(message.toString(), r))
       .failure(function(e) Assert.fail('$e'))
@@ -129,10 +134,11 @@ class TestRequest {
     thx.Timer.delay(function() emitter.end(), 50 * (chunks + 2));
     #end
 
-    Request.make(info)
+    Request.make(info, ResponseTypeText)
+      .response
       .mapSuccessPromise(function(r) {
         Assert.equals(200, r.statusCode);
-        return r.asString();
+        return r.body;
       })
       .success(function(r) Assert.same(message.toString(), r))
       .failure(function(e) Assert.fail('$e'))
@@ -145,10 +151,15 @@ class TestRequest {
             "Agent" => "thx.http.Request"
           ]);
 
-    Request.make(info)
-      .success(function(r) {
+    Request.make(info, ResponseTypeNoBody)
+      .response
+      .mapSuccessPromise(function(r) {
         //Assert.same(r.body, ResponseBody.NoBody);
         Assert.equals(204, r.statusCode);
+        return r.body;
+      })
+      .success(function(_) {
+        Assert.pass();
         done();
       })
       .failure(function(e) Assert.fail("should never reach this point"));
