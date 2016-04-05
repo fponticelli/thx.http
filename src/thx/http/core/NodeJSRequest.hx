@@ -5,13 +5,12 @@ import js.node.Https;
 import js.node.http.IncomingMessage;
 import js.node.Buffer;
 import haxe.io.Bytes;
+import thx.Objects;
 import thx.Error;
+import thx.http.RequestBody;
 using thx.promise.Promise;
 using thx.stream.Bus;
 using thx.stream.Emitter;
-import thx.Objects;
-using thx.Arrays;
-import thx.http.RequestBody;
 
 class NodeJSRequest<T> extends thx.http.Request<T> {
   public static function make<T>(requestInfo : RequestInfo, responseType : ResponseType<T>) : Request<T> {
@@ -153,7 +152,7 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
           buffer = Buffer.concat([buffer, chunk]);
       });
       response.on("end", function() resolve(buffer));
-      response.on("error", function(e) reject(thx.Error.fromDynamic(e)));
+      response.on("error", function(e) reject(Error.fromDynamic(e)));
     });
   }
 
@@ -167,7 +166,7 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
           buffer += chunk;
       });
       response.on("end", function() resolve(buffer));
-      response.on("error", function(e) reject(thx.Error.fromDynamic(e)));
+      response.on("error", function(e) reject(Error.fromDynamic(e)));
     });
   }
 
@@ -177,6 +176,6 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
         while(null != response.read()) {}
       });
       response.on("end", function() resolve(thx.Nil.nil));
-      response.on("error", function(e) reject(thx.Error.fromDynamic(e)));
+      response.on("error", function(e) reject(Error.fromDynamic(e)));
     });
 }
