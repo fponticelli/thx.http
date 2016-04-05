@@ -28,7 +28,7 @@ abstract RequestBody(RequestBodyImpl) from RequestBodyImpl to RequestBodyImpl {
     return BodyJSArrayBufferView(buffer);
   @:from inline public static function fromJSBlob(blob : js.html.Blob) : RequestBody
     return BodyJSBlob(blob);
-  @:from inline public static function fromJSDocument(doc : js.html.Document) : RequestBody // TODO Document or HTMLDocument
+  @:from inline public static function fromJSDocument(doc : js.html.HTMLDocument) : RequestBody
     return BodyJSDocument(doc);
   @:from inline public static function fromJSFormData(formData : js.html.FormData) : RequestBody
     return BodyJSFormData(formData);
@@ -51,7 +51,7 @@ enum RequestBodyImpl {
 #elseif js
   BodyJSArrayBufferView(buffer : js.html.ArrayBufferView);
   BodyJSBlob(blob : js.html.Blob);
-  BodyJSDocument(doc : js.html.Document); // TODO Document or HTMLDocument
+  BodyJSDocument(doc : js.html.HTMLDocument);
   BodyJSFormData(formData : js.html.FormData);
 #end
 }

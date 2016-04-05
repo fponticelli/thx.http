@@ -33,7 +33,6 @@ class Request<T> {
   // instance fields
   public var response(default, null) : Promise<Response<T>>;
 
-  public function abort() : Request<T> {
+  public function abort() : Request<T>
     return this;
-  }
 }

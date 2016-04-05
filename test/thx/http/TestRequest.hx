@@ -1,12 +1,13 @@
 package thx.http;
 
 import haxe.io.Bytes;
-import utest.Assert;
 import thx.http.RequestBody;
+import utest.Assert;
 using thx.http.Request;
-using thx.stream.Emitter;
-using thx.stream.Bus;
 using thx.Arrays;
+using thx.Strings;
+using thx.stream.Bus;
+using thx.stream.Emitter;
 
 class TestRequest {
   public function new() {}
@@ -213,6 +214,64 @@ class TestRequest {
       })
       .success(function(r) {
         Assert.isTrue(null != r.copy, "response is not of type Buffer");
+      })
+      .failure(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+#elseif js
+/*
+BodyJSArrayBufferView(buffer : js.html.ArrayBufferView);
+BodyJSBlob(blob : js.html.Blob);
+BodyJSDocument(doc : js.html.HTMLDocument); // TODO Document or HTMLDocument
+BodyJSFormData(formData : js.html.FormData);
+*/
+
+  public function testResponseTypeBlob() {
+    var done = Assert.createAsync(),
+        info = new RequestInfo(Get, "http://localhost:8081/", ["Agent" => "thx.http.Request"]);
+
+    Request.make(info, ResponseTypeBlob)
+      .response
+      .mapSuccessPromise(function(r) {
+        Assert.equals(200, r.statusCode);
+        return r.body;
+      })
+      .success(function(r) {
+        Assert.equals(2, r.size, "response is not of type Blob");
+      })
+      .failure(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+
+  public function testResponseTypeArrayBuffer() {
+    var done = Assert.createAsync(),
+        info = new RequestInfo(Get, "http://localhost:8081/", ["Agent" => "thx.http.Request"]);
+
+    Request.make(info, ResponseTypeArrayBuffer)
+      .response
+      .mapSuccessPromise(function(r) {
+        Assert.equals(200, r.statusCode);
+        return r.body;
+      })
+      .success(function(r) {
+        Assert.equals(2, r.byteLength, "response is not of type ArrayBuffer");
+      })
+      .failure(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+
+  public function testResponseTypeDocument() {
+    var done = Assert.createAsync(),
+        info = new RequestInfo(Get, "http://localhost:8081/html", ["Agent" => "thx.http.Request"]);
+
+    Request.make(info, ResponseTypeDocument)
+      .response
+      .mapSuccessPromise(function(r) {
+        Assert.equals(200, r.statusCode);
+        return r.body;
+      })
+      .success(function(r) {
+        Assert.equals('<div></div>', r.body.innerHTML.trim());
       })
       .failure(function(e) Assert.fail("should never reach this point"))
       .always(done);

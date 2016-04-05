@@ -79,10 +79,8 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
           req.end();
         case BodyBytes(b):
           req.end(NodeJS.arrayBufferToBuffer(b.getData()));
-#if(nodejs || hxnodejs)
         case BodyJSBuffer(buffer):
           req.end(buffer);
-#end
       }
     }), req);
   }
