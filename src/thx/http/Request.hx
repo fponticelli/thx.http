@@ -36,3 +36,19 @@ class Request<T> {
   public function abort() : Request<T>
     return this;
 }
+
+private class RequestDecorator<T> extends Request<T> {
+  var request : Request<Dynamic>;
+  public function new(request : Request<Dynamic>, response : Promise<Response<T>>) {
+    this.request = request;
+    this.response = response;
+  }
+
+  override function abort() : Request<T> {
+    request.abort();
+    return this;
+  }
+
+  // override public function map<TOut>(f : T -> TOut) : Request<TOut>
+  //   return new RequestDecorator(request, response.mapSuccess(f));
+}
