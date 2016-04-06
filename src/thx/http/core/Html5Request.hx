@@ -5,11 +5,13 @@ import js.html.XMLHttpRequest;
 import thx.Nil;
 import thx.http.*;
 import thx.http.RequestBody;
+#if thx_stream
 import thx.stream.*;
+using thx.stream.Emitter;
+#end
 using thx.Arrays;
 using thx.Functions;
 using thx.promise.Promise;
-using thx.stream.Emitter;
 
 class Html5Request<T> extends Request<T> {
   public static function make<T>(requestInfo : RequestInfo, responseType : ResponseType<T>) : Request<T> {
@@ -68,10 +70,12 @@ class Html5Request<T> extends Request<T> {
           request.send(i.readAll().getData());
         case BodyString(s, e):
           request.send(s);
+#if thx_stream
         case BodyStream(e):
           e.toPromise()
             .success(function(bytes) request.send(bytes.getData()))
             .failure(function(e) throw e);
+#end
         case BodyBytes(b):
           request.send(b.getData()); // TODO needs conversion
         case BodyJSFormData(formData):

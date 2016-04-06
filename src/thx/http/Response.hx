@@ -3,7 +3,6 @@ package thx.http;
 import haxe.io.Bytes;
 import thx.error.AbstractMethod;
 using thx.promise.Promise;
-using thx.stream.Emitter;
 
 class Response<T> {
   public static var statusCodes(default, null) = [

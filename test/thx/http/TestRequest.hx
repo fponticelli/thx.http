@@ -6,8 +6,10 @@ import utest.Assert;
 using thx.http.Request;
 using thx.Arrays;
 using thx.Strings;
+#if thx_stream
 using thx.stream.Bus;
 using thx.stream.Emitter;
+#end
 
 class TestRequest {
   public function new() {}
@@ -161,7 +163,7 @@ public function test404() {
       .failure(function(e) Assert.fail('$e'))
       .always(done);
   }
-#if!(neko||cpp)
+#if(thx_stream && !(neko||cpp))
   public function testStreamBody() {
     var size = 10000,
         chunks = 10,
