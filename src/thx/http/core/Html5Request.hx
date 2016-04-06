@@ -1,90 +1,117 @@
 package thx.http.core;
 
+import haxe.io.Bytes;
 import js.html.XMLHttpRequest;
+import thx.Nil;
+import thx.http.*;
+import thx.http.RequestBody;
+import thx.stream.*;
 using thx.Arrays;
 using thx.Functions;
-using thx.Error;
-import thx.error.*;
-import thx.http.Header;
 using thx.promise.Promise;
 using thx.stream.Emitter;
-import thx.stream.*;
-import haxe.io.Bytes;
 
-class Html5Request {
-  public static function make(requestInfo : RequestInfo) : Promise<Response> {
-    return Promise.create(function(resolve : Response -> Void, reject) {
-      var bus = new Bus(),
-          req = new XMLHttpRequest();
+class Html5Request<T> extends Request<T> {
+  public static function make<T>(requestInfo : RequestInfo, responseType : ResponseType<T>) : Request<T> {
+    var request = new XMLHttpRequest();
+    request.responseType = switch responseType {
+      case ResponseTypeBytes: ARRAYBUFFER;
+      case ResponseTypeNoBody: NONE;
+      case ResponseTypeText: TEXT;
+      case ResponseTypeJson: JSON;
+      case ResponseTypeArrayBuffer: ARRAYBUFFER;
+      case ResponseTypeBlob: BLOB;
+      case ResponseTypeDocument: DOCUMENT;
+    };
+    return new Html5Request(Promise.create(function(resolve : Response<T> -> Void, reject) {
+      var promiseResponseBody = Promise.create(function(resolveBody, rejectBody) {
+        request.addEventListener("load", function(e) {
+          var body : Dynamic = switch responseType {
+            case ResponseTypeBytes: Bytes.ofData(request.response);
+            case ResponseTypeNoBody: Nil.nil;
+            case ResponseTypeText: request.response;
+            case ResponseTypeJson: request.response;
+            case ResponseTypeArrayBuffer: request.response;
+            case ResponseTypeBlob: request.response;
+            case ResponseTypeDocument: request.response;
+          };
+          resolveBody(body);
+        });
+      });
+      request.addEventListener("readystatechange", function(e) {
+        if(request.readyState == 2) // HEADERS_RECEIVED
+          resolve(new Html5Response(promiseResponseBody, request));
+        // var state = switch request.readyState {
+        //   case 0: "UNSENT";
+        //   case 1: "OPENED";
+        //   case 2: "HEADERS_RECEIVED";
+        //   case 3: "LOADING";
+        //   case 4: "DONE";
+        //   case other: 'MEH $other';
+        // }
+        // trace('readystatechange $state');
+      });
+      request.addEventListener("error", function(e) {
+        reject(new HttpConnectionError(e.message));
+      });
+      request.addEventListener("abort", function(e) {
+        reject(new HttpAbortError(requestInfo.url));
+      });
+      request.open(requestInfo.method, requestInfo.url.toString());
 
-      function send() {
-        (requestInfo.headers : Array<Header>).map.fn(req.setRequestHeader(_.key, _.value));
-
-        switch requestInfo.body {
-          case NoBody:
-            req.send();
-          case BodyInput(i):
-            req.send(i.readAll().getData());
-          case BodyString(s, e):
-            req.send(s);
-          case BodyStream(e):
-            e.toPromise()
-              .success(function(bytes) req.send(bytes.getData()))
-              .failure(function(e) throw e);
-          case BodyBytes(b):
-            req.send(b.getData()); // TODO needs conversion
-        }
+      (requestInfo.headers : Array<Header>).map.fn(request.setRequestHeader(_.key, _.value));
+      var body : RequestBodyImpl = requestInfo.body;
+      switch body {
+        case NoBody:
+          request.send();
+        case BodyInput(i):
+          request.send(i.readAll().getData());
+        case BodyString(s, e):
+          request.send(s);
+        case BodyStream(e):
+          e.toPromise()
+            .success(function(bytes) request.send(bytes.getData()))
+            .failure(function(e) throw e);
+        case BodyBytes(b):
+          request.send(b.getData()); // TODO needs conversion
+        case BodyJSFormData(formData):
+          request.send(formData);
+        case BodyJSDocument(doc):
+          request.send(doc);
+        case BodyJSBlob(blob):
+          request.send(blob);
+        case BodyJSArrayBufferView(arrayBufferView):
+          request.send(arrayBufferView);
       }
-      var sent = false;
-      req.onload = function(e) {
-        if(req.response == null || req.response.length == 0) {
-          bus.end();
-        } else {
-          bus.pulse(Bytes.ofData(req.response));
-          bus.end();
-        }
-        if(sent) return;
-        sent = true;
-        resolve(new Html5Response(req, bus));
-      };
+    }), request);
+  }
+  public var request(default, null) : XMLHttpRequest;
+  function new(response : Promise<Response<T>>, request : XMLHttpRequest) {
+    this.response = response;
+    this.request = request;
+  }
 
-      req.onreadystatechange = function(e) {
-        if(req.readyState == 1) {// 1: connection opened
-          send();
-          return;
-        }
-        if(req.readyState != 2) {// 2: request received
-          return;
-        }
-        if(sent) return;
-        sent = true;
-        resolve(new Html5Response(req, bus));
-      };
-
-      req.onabort = function(e) {
-        reject(new ErrorWrapper("connection aborted", e, null));
-      };
-      req.onerror = function(e) {
-        reject(thx.Error.fromDynamic(e));
-      };
-      req.open(
-        requestInfo.method,
-        requestInfo.url,
-        true
-      );
-      req.responseType = ARRAYBUFFER;
-    });
+  override function abort() {
+    request.abort();
+    return this;
   }
 }
 
-class Html5Response extends thx.http.Response {
-  var req : XMLHttpRequest;
-  public function new(req : XMLHttpRequest, bus : Bus<Bytes>) {
-    this.req = req;
-    headers = req.getAllResponseHeaders();
-    this.emitter = bus;
+class Html5Response<T> extends thx.http.Response<T> {
+  public var request(default, null) : XMLHttpRequest;
+  var _body : Promise<T>;
+  public function new(body : Promise<T>, request : XMLHttpRequest) {
+    this._body = body;
+    this.request = request;
   }
 
-  override function get_statusCode() return req.status;
-  override function get_statusText() return req.statusText;
+  override function get_body() return _body;
+  override function get_statusCode() return request.status;
+  override function get_statusText() return request.statusText;
+  var _headers : Headers;
+  override function get_headers() {
+    if(null != _headers)
+      return _headers;
+    return _headers = request.getAllResponseHeaders();
+  }
 }

@@ -82,30 +82,17 @@ class RequestInfo {
         var b = s.readAll();
         body = BodyBytes(b);
         buf.push(Const.CRLF + b.toString());
+  #if(nodejs || hxnodejs)
+      case BodyJSBuffer(buffer):
+        buf.push(buffer.toString());
+  #elseif js
+      case BodyJSArrayBufferView(buffer):  // TODO print something here?
+      case BodyJSBlob(blob):  // TODO print something here?
+      case BodyJSDocument(doc):
+        buf.push(doc.documentElement.outerHTML);
+      case BodyJSFormData(formData): // TODO print something here?
+  #end
     }
     return buf.join(Const.CRLF);
-  }
-
-  public function read() : Promise<Bytes> {
-    switch body {
-      case NoBody:
-        return Promise.value(Bytes.alloc(0));
-      case BodyBytes(b):
-        return Promise.value(b);
-      case BodyStream(e):
-        return e.toPromise()
-          .mapSuccess(function(bytes) {
-            body = BodyBytes(bytes);
-            return bytes;
-          });
-      case BodyString(s, _):
-        var b = Bytes.ofString(s);
-        body = BodyBytes(b);
-        return Promise.value(b);
-      case BodyInput(s):
-        var b = s.readAll();
-        body = BodyBytes(b);
-        return Promise.value(b);
-    }
   }
 }

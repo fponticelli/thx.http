@@ -29,6 +29,25 @@ class TestServer implements abe.IRoute {
     response.status(200).send(Reflect.field(request.body, "q"));
   }
 
+  @:get("/html")
+  function sendHtml() {
+    trace('SEND: HTML');
+    response.send('<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>title</title>
+  </head>
+  <body><div></div></body>
+</html>');
+  }
+
+  @:get("/json")
+  function sendJson() {
+    trace('SEND: JSON OBJECT');
+    response.send({ message : "OK" });
+  }
+
   @:post("/raw")
   @:use(mw.BodyParser.text())
   function bounceRaw() {
@@ -40,6 +59,11 @@ class TestServer implements abe.IRoute {
   function nocontent() {
     trace('SEND: NO CONTENT');
     response.sendStatus(204);
+  }
+
+  @:get("/headers")
+  function headers() {
+    response.send((cast request.headers : {}));
   }
 
   @:get("/shutdown")

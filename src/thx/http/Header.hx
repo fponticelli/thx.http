@@ -37,7 +37,7 @@ abstract Header(Tuple2<String, String>) to Tuple2<String, String> {
   public var key(get, set) : String;
   public var value(get, set) : String;
 
-  inline function new(t : Tuple2<String, String>)
+  inline public function new(t : Tuple2<String, String>)
     this = t;
 
   inline function get_key()

@@ -1,76 +1,108 @@
 package thx.http.core;
 
+import thx.Nil;
+import haxe.Http;
+import haxe.io.Bytes;
+import thx.http.*;
+import thx.http.RequestBody;
 using thx.Arrays;
 using thx.Functions;
 using thx.Strings;
 using thx.promise.Promise;
 using thx.stream.Emitter;
-import haxe.io.Bytes;
 
-class HaxeRequest {
-  public static function make(requestInfo : RequestInfo) : Promise<Response> {
-    return Promise.create(function(resolve : Response -> Void, reject) {
-      var req = new haxe.Http(requestInfo.url);
-      (requestInfo.headers : Array<Header>)
-        .map.fn(req.addHeader(_.key, _.value));
+class HaxeRequest<T> extends Request<T> {
+  public static function make<T>(requestInfo : RequestInfo, responseType : ResponseType<T>) : Request<T> {
+    var request = new haxe.Http(requestInfo.url.toString());
+    (requestInfo.headers : Array<Header>).each.fn(request.addHeader(_.key, _.value));
 
-      function send() {
-        switch requestInfo.method {
-          case Get:   req.request(false);
-          case Post:  req.request(true);
-          case other: throw 'haxe.Http doesn\'t support method "$other"';
-        }
+    function send() {
+      switch requestInfo.method {
+        case Get:   request.request(false);
+        case Post:  request.request(true);
+        case other: throw 'haxe.Http doesn\'t support method "$other"';
       }
-
-      var data = null,
-          emitter = new Emitter(function(stream){
-            if(null != data)
-              stream.pulse(data);
-            stream.end();
-          }),
-          completed = false;
-      req.onData = function(d : String) {
-        data = Bytes.ofString(d);
+    }
+    var promiseBody = Promise.create(function(resolve : Dynamic -> Void, reject) {
+      request.onData = function(d : String) {
+        resolve(switch responseType {
+          case ResponseTypeText:  d;
+          case ResponseTypeBytes: Bytes.ofString(d);
+          case ResponseTypeNoBody: Nil.nil;
+          case ResponseTypeJson: haxe.Json.parse(d);
+        });
       };
-      req.onStatus = function(s) {
-        if(completed) return;
-        completed = true;
-        resolve(new HaxeResponse(s, emitter, req.responseHeaders));
-      };
-      req.onError = function(msg) {
-        // is onError firing twice?
-        if(completed) return;
-        completed = true;
-        trace('ERROR: $msg');
-        reject(new thx.Error(msg));
-      };
-
-      switch requestInfo.body {
-        case BodyString(s, _): // TODO encoding
-          req.setPostData(s);
-          send();
-        case BodyBytes(b):
-          req.setPostData(b.toString());
-          send();
-        case BodyInput(i):
-          req.setPostData(i.readAll().toString());
-          send();
-        case BodyStream(e):
-          throw "unable to use BodyStream payload with HaxeRequest";
-        case NoBody: // do nothing
-          send();
-      }
     });
+
+    var promise : Promise<Response<T>> = Promise.create(function(resolve : Response<T> -> Void, reject) {
+          var completed = false;
+          request.onStatus = function(s) {
+            if(completed) return;
+            completed = true;
+            resolve(new HaxeResponse(s, promiseBody, request));
+          };
+          request.onError = function(msg) {
+            // is onError firing twice?
+            if(completed) {
+              // forces completing the Respone Body promise
+              request.onData(msg);
+              request.onData = function(_){};
+              return;
+            }
+            completed = true;
+            reject(new HttpConnectionError(msg)); // TODO better error
+          };
+          switch requestInfo.body {
+            case BodyString(s, _): // TODO encoding
+              request.setPostData(s);
+              send();
+            case BodyBytes(b):
+              request.setPostData(b.toString());
+              send();
+            case BodyInput(i):
+              request.setPostData(i.readAll().toString());
+              send();
+            case BodyStream(e):
+              throw "unable to use BodyStream payload with HaxeRequest";
+            case NoBody: // do nothing
+              send();
+          }
+        });
+    return new HaxeRequest(promise, request);
+  }
+
+  public var request(default, null) : Http;
+  function new(response : Promise<Response<T>>, request : Http) {
+    this.response = response;
+    this.request = request;
+  }
+
+  override function abort() {
+#if(flash || js)
+    request.cancel();
+#else
+    trace("haxe http doesn't support aborting requests on this platform");
+#end
+    return this;
   }
 }
 
-class HaxeResponse extends thx.http.Response {
-  var _statusCode : Int;
-  public function new(statusCode : Int, emitter : Emitter<Bytes>, headers : Headers) {
-    this._statusCode = statusCode;
-    this.headers = headers;
-    this.emitter = emitter;
+class HaxeResponse<T> extends thx.http.Response<T> {
+  public var request(default, null) : Http;
+  var _body : Promise<T>;
+  var _status : Int;
+  public function new(status : Int, body : Promise<T>, request : Http) {
+    this._body = body;
+    this._status = status;
+    this.request = request;
   }
 
-  override function get_statusCode() return _statusCode;
+  override function get_body() return _body;
+  override function get_statusCode() return _status;
+  var _headers : Headers;
+  override function get_headers() {
+    if(null != _headers)
+      return _headers;
+    return _headers = request.responseHeaders;
+  }
 }
