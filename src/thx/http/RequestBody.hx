@@ -2,7 +2,9 @@ package thx.http;
 
 import haxe.io.Bytes;
 import haxe.io.Input;
+#if thx_stream
 import thx.stream.Emitter;
+#end
 
 abstract RequestBody(RequestBodyImpl) from RequestBodyImpl to RequestBodyImpl {
   @:from inline public static function fromString(s : String) : RequestBody
@@ -16,10 +18,10 @@ abstract RequestBody(RequestBodyImpl) from RequestBodyImpl to RequestBodyImpl {
 
   @:from inline public static function fromInput(i : Input) : RequestBody
     return BodyInput(i);
-
+#if thx_stream
   @:from inline public static function fromStream(s : Emitter<Bytes>) : RequestBody
     return BodyStream(s);
-
+#end
 #if(nodejs || hxnodejs)
   @:from inline public static function fromJSBuffer(buffer : js.node.Buffer) : RequestBody
     return BodyJSBuffer(buffer);
@@ -44,7 +46,9 @@ enum RequestBodyImpl {
   BodyString(s : String, ?encoding : String);
   BodyBytes(b : Bytes);
   BodyInput(s : Input);
+#if thx_stream
   BodyStream(e : Emitter<Bytes>); // TODO NodeJS: Stream of String with and without encoding
+#end
 #if(nodejs || hxnodejs)
   BodyJSBuffer(buffer : js.node.Buffer);
   // TODO NodeJS pipes

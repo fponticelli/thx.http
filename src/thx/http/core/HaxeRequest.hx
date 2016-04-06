@@ -9,7 +9,9 @@ using thx.Arrays;
 using thx.Functions;
 using thx.Strings;
 using thx.promise.Promise;
+#if thx_stream
 using thx.stream.Emitter;
+#end
 
 class HaxeRequest<T> extends Request<T> {
   public static function make<T>(requestInfo : RequestInfo, responseType : ResponseType<T>) : Request<T> {
@@ -62,8 +64,10 @@ class HaxeRequest<T> extends Request<T> {
             case BodyInput(i):
               request.setPostData(i.readAll().toString());
               send();
+#if thx_stream
             case BodyStream(e):
               throw "unable to use BodyStream payload with HaxeRequest";
+#end
             case NoBody: // do nothing
               send();
           }

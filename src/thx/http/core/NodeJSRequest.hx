@@ -9,8 +9,10 @@ import thx.Objects;
 import thx.http.*;
 import thx.http.RequestBody;
 using thx.promise.Promise;
+#if thx_stream
 using thx.stream.Bus;
 using thx.stream.Emitter;
+#end
 
 class NodeJSRequest<T> extends thx.http.Request<T> {
   public static function make<T>(requestInfo : RequestInfo, responseType : ResponseType<T>) : Request<T> {
@@ -53,6 +55,7 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
           req.end(s);
         case BodyString(s, e):
           req.end(s, e);
+#if thx_stream
         case BodyStream(e):
           e.subscribe(
             function(bytes) req.write(NodeJS.arrayBufferToBuffer(bytes.getData())),
@@ -62,6 +65,7 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
               req.end();
             }
           );
+#end
         case BodyInput(i):
           var size = 8192,
               buf = Bytes.alloc(size),
