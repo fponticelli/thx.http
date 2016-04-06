@@ -3,13 +3,11 @@ package thx.http.core;
 import haxe.io.Bytes;
 import js.html.XMLHttpRequest;
 import thx.Nil;
-import thx.error.*;
-import thx.http.Header;
+import thx.http.*;
 import thx.http.RequestBody;
 import thx.stream.*;
 using thx.Arrays;
 using thx.Functions;
-using thx.Error;
 using thx.promise.Promise;
 using thx.stream.Emitter;
 
@@ -54,10 +52,10 @@ class Html5Request<T> extends Request<T> {
         // trace('readystatechange $state');
       });
       request.addEventListener("error", function(e) {
-        reject(Error.fromDynamic(e)); // TODO
+        reject(new HttpConnectionError(e.message));
       });
       request.addEventListener("abort", function(e) {
-        reject(new Error('used aborted request of ${requestInfo.url}')); // TODO
+        reject(new HttpAbortError(requestInfo.url));
       });
       request.open(requestInfo.method, requestInfo.url.toString());
 

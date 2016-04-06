@@ -3,7 +3,7 @@ package thx.http.core;
 import thx.Nil;
 import haxe.Http;
 import haxe.io.Bytes;
-import thx.http.Header;
+import thx.http.*;
 import thx.http.RequestBody;
 using thx.Arrays;
 using thx.Functions;
@@ -24,12 +24,14 @@ class HaxeRequest<T> extends Request<T> {
       }
     }
     var promiseBody = Promise.create(function(resolve : Dynamic -> Void, reject) {
-      request.onData = function(d : String) resolve(switch responseType {
-        case ResponseTypeText:  d;
-        case ResponseTypeBytes: Bytes.ofString(d);
-        case ResponseTypeNoBody: Nil.nil;
-        case ResponseTypeJson: haxe.Json.parse(d);
-      });
+      request.onData = function(d : String) {
+        resolve(switch responseType {
+          case ResponseTypeText:  d;
+          case ResponseTypeBytes: Bytes.ofString(d);
+          case ResponseTypeNoBody: Nil.nil;
+          case ResponseTypeJson: haxe.Json.parse(d);
+        });
+      };
     });
 
     var promise : Promise<Response<T>> = Promise.create(function(resolve : Response<T> -> Void, reject) {
@@ -41,12 +43,15 @@ class HaxeRequest<T> extends Request<T> {
           };
           request.onError = function(msg) {
             // is onError firing twice?
-            if(completed) return;
+            if(completed) {
+              // forces completing the Respone Body promise
+              request.onData(msg);
+              request.onData = function(_){};
+              return;
+            }
             completed = true;
-            trace('ERROR: $msg');
-            reject(new thx.Error(msg)); // TODO better error
+            reject(new HttpConnectionError(msg)); // TODO better error
           };
-          var body : RequestBodyImpl = requestInfo.body;
           switch requestInfo.body {
             case BodyString(s, _): // TODO encoding
               request.setPostData(s);

@@ -32,9 +32,29 @@ class Request<T> {
 
   // instance fields
   public var response(default, null) : Promise<Response<T>>;
+  public var body(get, null) : Promise<T>;
 
   public function abort() : Request<T>
     return this;
+
+  var _body : Promise<T>;
+  function get_body() {
+    if(null != _body)
+      return _body;
+    return _body = response.mapSuccessPromise(function(response) {
+      return switch response.statusCode {
+        case 200, 201, 202, 203, 204, 205, 206:
+          response.body;
+        case serverError if(serverError >= 500):
+          Promise.error(new HttpServerError(serverError, response.statusText));
+        case clientError if(clientError >= 400):
+          Promise.error(new HttpClientError(clientError, response.statusText));
+        case other:
+          Promise.error(new HttpStatusError(other, response.statusText));
+      }
+      return response.body;
+    });
+  }
 }
 
 private class RequestDecorator<T> extends Request<T> {
@@ -49,6 +69,6 @@ private class RequestDecorator<T> extends Request<T> {
     return this;
   }
 
-  // override public function map<TOut>(f : T -> TOut) : Request<TOut>
+  // override function map<TOut>(f : Response<T> -> Response<TOut>) : Request<TOut>
   //   return new RequestDecorator(request, response.mapSuccess(f));
 }

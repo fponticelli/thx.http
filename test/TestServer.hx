@@ -61,6 +61,11 @@ class TestServer implements abe.IRoute {
     response.sendStatus(204);
   }
 
+  @:get("/headers")
+  function headers() {
+    response.send((cast request.headers : {}));
+  }
+
   @:get("/shutdown")
   function shutdown() {
     response.sendStatus(204);

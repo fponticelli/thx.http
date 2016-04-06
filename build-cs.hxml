@@ -1,0 +1,13 @@
+-lib thx.core
+-lib utest
+-lib thx.promise
+-lib thx.stream
+-cp src
+-cp test
+-cs bin/cs
+-main TestAll
+
+-cmd ./start.sh
+-cmd sleep 1
+# -cmd neko bin/test.n
+-cmd ./stop.sh

@@ -1,0 +1,13 @@
+-lib thx.core
+-lib utest
+-lib thx.promise
+-lib thx.stream
+-cp src
+-cp test
+-cpp bin/cpp
+-main TestAll
+
+-cmd ./start.sh
+-cmd sleep 1
+-cmd ./bin/cpp/TestAll
+-cmd ./stop.sh

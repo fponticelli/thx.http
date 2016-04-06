@@ -6,7 +6,7 @@ import js.node.http.IncomingMessage;
 import js.node.Buffer;
 import haxe.io.Bytes;
 import thx.Objects;
-import thx.Error;
+import thx.http.*;
 import thx.http.RequestBody;
 using thx.promise.Promise;
 using thx.stream.Bus;
@@ -43,7 +43,7 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
         resolve(new NodeJSResponse(res, responseType));
       });
       req.on("error", function(e) {
-        reject(Error.fromDynamic(e)); // TODO better error report
+        reject(new HttpConnectionError(e.message));
       });
 
       switch (requestInfo.body : RequestBodyImpl) {
@@ -150,7 +150,7 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
           buffer = Buffer.concat([buffer, chunk]);
       });
       response.on("end", function() resolve(buffer));
-      response.on("error", function(e) reject(Error.fromDynamic(e)));
+      response.on("error", function(e) reject(new HttpConnectionError(e.message)));
     });
   }
 
@@ -164,7 +164,7 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
           buffer += chunk;
       });
       response.on("end", function() resolve(buffer));
-      response.on("error", function(e) reject(Error.fromDynamic(e)));
+      response.on("error", function(e) reject(new HttpConnectionError(e.message)));
     });
   }
 
@@ -174,6 +174,6 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
         while(null != response.read()) {}
       });
       response.on("end", function() resolve(thx.Nil.nil));
-      response.on("error", function(e) reject(Error.fromDynamic(e)));
+      response.on("error", function(e) reject(new HttpConnectionError(e.message)));
     });
 }

@@ -29,6 +29,61 @@ class TestRequest {
       .always(done);
   }
 
+public function test404() {
+  var done = Assert.createAsync(300),
+      info = new RequestInfo(Get, "http://localhost:8081/404", [ "Agent" => "thx.http.Request" ]);
+
+  Request.make(info, ResponseTypeText)
+    .response
+    .mapSuccessPromise(function(r) {
+      Assert.equals(404, r.statusCode);
+      return r.body;
+    })
+    .success(function(_) Assert.pass())
+    .failure(function(e) Assert.fail("should never reach this point"))
+    .always(done);
+}
+
+  public function testSafe404() {
+    var done = Assert.createAsync(),
+        info = new RequestInfo(Get, "http://localhost:8081/404", [ "Agent" => "thx.http.Request" ]);
+
+    Request.make(info, ResponseTypeText)
+      .body
+      .failure(function(_) Assert.pass())
+      .success(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+
+  public function testSafe200() {
+    var done = Assert.createAsync(),
+        info = new RequestInfo(Get, "http://localhost:8081/", [ "Agent" => "thx.http.Request" ]);
+
+    Request.make(info, ResponseTypeText)
+      .body
+      .success(function(r) Assert.equals("OK", r))
+      .failure(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+
+  public function testHeaders() {
+    var done = Assert.createAsync(),
+        info = new RequestInfo(Get, "http://localhost:8081/headers", [ "Agent" => "thx.http.Request" ]);
+
+    Request.make(info, ResponseTypeJson)
+      .body
+      .success(function(r) {
+        Assert.equals("thx.http.Request", r.agent);
+#if(neko||cpp)
+        Assert.equals("localhost", r.host);
+#else
+        Assert.equals("localhost:8081", r.host);
+#end
+      })
+      .failure(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+
   public function testQueryStringBody() {
     var message = "request thx body",
         done = Assert.createAsync(),
@@ -106,7 +161,7 @@ class TestRequest {
       .failure(function(e) Assert.fail('$e'))
       .always(done);
   }
-#if !neko
+#if!(neko||cpp)
   public function testStreamBody() {
     var size = 10000,
         chunks = 10,
