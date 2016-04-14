@@ -22,7 +22,7 @@ class TestRequest {
 
     Request.make(info, ResponseTypeText)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -37,7 +37,7 @@ public function test404() {
 
   Request.make(info, ResponseTypeText)
     .response
-    .mapSuccessPromise(function(r) {
+    .flatMap(function(r) {
       Assert.equals(404, r.statusCode);
       return r.body;
     })
@@ -93,7 +93,7 @@ public function test404() {
 
     Request.make(info, ResponseTypeText)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -110,7 +110,7 @@ public function test404() {
 
     Request.make(info, ResponseTypeText)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -132,7 +132,7 @@ public function test404() {
 
     Request.make(info, ResponseTypeText)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -155,7 +155,7 @@ public function test404() {
 
     Request.make(info, ResponseTypeText)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -194,7 +194,7 @@ public function test404() {
 
     Request.make(info, ResponseTypeText)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -211,7 +211,7 @@ public function test404() {
 
     Request.make(info, ResponseTypeNoBody)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         //Assert.same(r.body, ResponseBody.NoBody);
         Assert.equals(204, r.statusCode);
         return r.body;
@@ -229,7 +229,7 @@ public function test404() {
 
     Request.make(info, ResponseTypeJson)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -246,7 +246,7 @@ public function test404() {
 
     Request.make(info, ResponseTypeBytes)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -265,7 +265,7 @@ public function test404() {
 
     Request.make(info, ResponseTypeJSBuffer)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -289,7 +289,7 @@ BodyJSFormData(formData : js.html.FormData);
 
     Request.make(info, ResponseTypeBlob)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -306,7 +306,7 @@ BodyJSFormData(formData : js.html.FormData);
 
     Request.make(info, ResponseTypeArrayBuffer)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })
@@ -323,7 +323,7 @@ BodyJSFormData(formData : js.html.FormData);
 
     Request.make(info, ResponseTypeDocument)
       .response
-      .mapSuccessPromise(function(r) {
+      .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
         return r.body;
       })

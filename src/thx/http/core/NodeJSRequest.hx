@@ -108,11 +108,9 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
     this.responseType = responseType;
     _body = switch responseType {
       case ResponseTypeBytes:
-        promiseOfBuffer(response)
-          .mapSuccess(NodeJS.bufferToBytes);
+        promiseOfBuffer(response).map(NodeJS.bufferToBytes);
       case ResponseTypeJson:
-        promiseOfText(response)
-          .mapSuccess(haxe.Json.parse);
+        promiseOfText(response).map(haxe.Json.parse);
       case ResponseTypeText:
         promiseOfText(response);
       case ResponseTypeJSBuffer:
@@ -124,8 +122,7 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
 
   override function get_statusCode() : Int
     return response.statusCode;
-  // override function get_statusText() : String
-  //   return response.statusMessage; // TODO statusMessage should exist
+
   var _headers : Headers;
   override function get_headers() : Headers {
     if(null != _headers)
@@ -144,7 +141,7 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
   override function get_body() : Promise<T>
     return _body;
 
-  static function promiseOfBuffer(response : IncomingMessage) : Promise<Buffer> {
+  static function promiseOfBuffer(response : IncomingMessage) : Promise<Buffer>
     // response.setEncoding(null); // tried this and it seems to encode the output as a string. The documentation says otherwise.
     return Promise.create(function(resolve, reject) {
       var buffer = new Buffer(0);
@@ -156,7 +153,6 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
       response.on("end", function() resolve(buffer));
       response.on("error", function(e) reject(new HttpConnectionError(e.message)));
     });
-  }
 
   static function promiseOfText(response : IncomingMessage) : Promise<String> {
     response.setEncoding("utf8");

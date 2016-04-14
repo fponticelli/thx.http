@@ -73,9 +73,6 @@ class Response<T> {
   public var body(get, null) : Promise<T>;
   public var responseType(default, null) : ResponseType<T>;
 
-  public function map<TOut>(f : T -> TOut) : Response<TOut>
-    return new ResponseDecorator(this, body.mapSuccess(f));
-
   public function toString() : String
     return '$statusCode: $statusText\n$headers';
 
@@ -87,25 +84,4 @@ class Response<T> {
     return throw new AbstractMethod();
   function get_body() : Promise<T>
     return throw new AbstractMethod();
-}
-
-private class ResponseDecorator<T> extends Response<T> {
-  var response : Response<Dynamic>;
-  var _body : Promise<T>;
-  public function new(response : Response<Dynamic>, body : Promise<T>) {
-    this.response = response;
-    _body = body;
-  }
-
-  override function get_statusCode() : Int
-    return response.statusCode;
-  override function get_statusText() : String
-    return response.statusText;
-  override function get_headers() : Headers
-    return response.headers;
-  override function get_body() : Promise<T>
-    return _body;
-
-  override public function map<TOut>(f : T -> TOut) : Response<TOut>
-    return new ResponseDecorator(response, body.mapSuccess(f));
 }

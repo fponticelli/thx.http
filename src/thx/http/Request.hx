@@ -41,7 +41,7 @@ class Request<T> {
   function get_body() {
     if(null != _body)
       return _body;
-    return _body = response.mapSuccessPromise(function(response) {
+    return _body = response.flatMap(function(response) {
       return switch response.statusCode {
         case 200, 201, 202, 203, 204, 205, 206:
           response.body;
@@ -55,20 +55,4 @@ class Request<T> {
       return response.body;
     });
   }
-}
-
-private class RequestDecorator<T> extends Request<T> {
-  var request : Request<Dynamic>;
-  public function new(request : Request<Dynamic>, response : Promise<Response<T>>) {
-    this.request = request;
-    this.response = response;
-  }
-
-  override function abort() : Request<T> {
-    request.abort();
-    return this;
-  }
-
-  // override function map<TOut>(f : Response<T> -> Response<TOut>) : Request<TOut>
-  //   return new RequestDecorator(request, response.mapSuccess(f));
 }

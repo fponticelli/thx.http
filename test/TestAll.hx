@@ -8,6 +8,7 @@ class TestAll {
     runner.addCase(new thx.http.TestHeaders());
     runner.addCase(new thx.http.TestRequestInfo());
     runner.addCase(new thx.http.TestRequest());
+    runner.addCase(new thx.http.TestResponse());
     Report.create(runner);
     runner.run();
   }
