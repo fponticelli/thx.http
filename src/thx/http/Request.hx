@@ -18,7 +18,7 @@ class Request<T> {
   public static function ping(url : String) : Request<thx.Nil>
     return get(url, ResponseTypeNoBody);
 
-  public static function getBytes(url : String) : Request<haxe.io.Bytes>
+  public static function getBinary(url : String) : Request<haxe.io.Bytes>
     return get(url, ResponseTypeBytes);
 
   public static function getJson(url : String) : Request<Dynamic>
@@ -29,6 +29,11 @@ class Request<T> {
 
   public static function get<T>(url : String, responseType : ResponseType<T>) : Request<T>
     return make(new RequestInfo(Get, url), responseType);
+
+#if hxnodejs
+  public static function getJSBuffer(url : String) : Request<js.node.Buffer>
+    return get(url, ResponseTypeJSBuffer);
+#end
 
   // instance fields
   public var response(default, null) : Promise<Response<T>>;
