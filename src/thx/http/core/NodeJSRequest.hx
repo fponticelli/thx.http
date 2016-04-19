@@ -51,12 +51,12 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
       switch (requestInfo.body : RequestTypeImpl) {
         case NoBody:
           req.end();
-        case BodyString(s, null):
+        case Text(s, null):
           req.end(s);
-        case BodyString(s, e):
+        case Text(s, e):
           req.end(s, e);
 #if thx_stream
-        case BodyStream(e):
+        case Stream(e):
           e.subscribe(
             function(bytes) req.write(NodeJS.arrayBufferToBuffer(bytes.getData())),
             function(cancelled) if(cancelled) {
@@ -66,7 +66,7 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
             }
           );
 #end
-        case BodyInput(i):
+        case Input(i):
           var size = 8192,
               buf = Bytes.alloc(size),
               len;
@@ -81,9 +81,9 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
             }
           }
           req.end();
-        case BodyBytes(b):
+        case Binary(b):
           req.end(NodeJS.arrayBufferToBuffer(b.getData()));
-        case BodyJSBuffer(buffer):
+        case JSBuffer(buffer):
           req.end(buffer);
       }
     }), req);

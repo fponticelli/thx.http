@@ -38,7 +38,7 @@ class RequestInfo {
       url = '$host${firstLine[1]}';
       headers.remove("Host");
     }
-    body = bodyBlock.isEmpty() ? NoBody : BodyString(bodyBlock);
+    body = bodyBlock.isEmpty() ? NoBody : Text(bodyBlock);
     return new RequestInfo(
       method,
       url,
@@ -76,25 +76,25 @@ class RequestInfo {
     switch body {
       case NoBody:
 #if thx_stream
-      case BodyStream(e): // TODO print something here?
+      case Stream(e): // TODO print something here?
 #end
-      case BodyString(s, _):
+      case Text(s, _):
         buf.push(Const.CRLF + s);
-      case BodyBytes(b):
+      case Binary(b):
         buf.push(Const.CRLF + b.toString());
-      case BodyInput(s):
+      case Input(s):
         var b = s.readAll();
-        body = BodyBytes(b);
+        body = Binary(b);
         buf.push(Const.CRLF + b.toString());
   #if(nodejs || hxnodejs)
-      case BodyJSBuffer(buffer):
+      case JSBuffer(buffer):
         buf.push(buffer.toString());
   #elseif js
-      case BodyJSArrayBufferView(buffer):  // TODO print something here?
-      case BodyJSBlob(blob):  // TODO print something here?
-      case BodyJSDocument(doc):
+      case JSArrayBufferView(buffer):  // TODO print something here?
+      case JSBlob(blob):  // TODO print something here?
+      case JSDocument(doc):
         buf.push(doc.documentElement.outerHTML);
-      case BodyJSFormData(formData): // TODO print something here?
+      case JSFormData(formData): // TODO print something here?
   #end
     }
     return buf.join(Const.CRLF);

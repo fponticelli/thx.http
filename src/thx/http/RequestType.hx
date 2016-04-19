@@ -8,32 +8,32 @@ import thx.stream.Emitter;
 
 abstract RequestType(RequestTypeImpl) from RequestTypeImpl to RequestTypeImpl {
   @:from inline public static function fromString(s : String) : RequestType
-    return BodyString(s);
+    return Text(s);
 
   inline public static function fromStringWithEncoding(s : String, encoding : String) : RequestType
-    return BodyString(s, encoding);
+    return Text(s, encoding);
 
   @:from inline public static function fromBytes(b : Bytes) : RequestType
-    return BodyBytes(b);
+    return Binary(b);
 
   @:from inline public static function fromInput(i : Input) : RequestType
-    return BodyInput(i);
+    return Input(i);
 #if thx_stream
   @:from inline public static function fromStream(s : Emitter<Bytes>) : RequestType
-    return BodyStream(s);
+    return Stream(s);
 #end
 #if(nodejs || hxnodejs)
   @:from inline public static function fromJSBuffer(buffer : js.node.Buffer) : RequestType
-    return BodyJSBuffer(buffer);
+    return JSBuffer(buffer);
 #elseif js
   @:from inline public static function fromJSArrayBufferView(buffer : js.html.ArrayBufferView) : RequestType
-    return BodyJSArrayBufferView(buffer);
+    return JSArrayBufferView(buffer);
   @:from inline public static function fromJSBlob(blob : js.html.Blob) : RequestType
-    return BodyJSBlob(blob);
+    return JSBlob(blob);
   @:from inline public static function fromJSDocument(doc : js.html.HTMLDocument) : RequestType
-    return BodyJSDocument(doc);
+    return JSDocument(doc);
   @:from inline public static function fromJSFormData(formData : js.html.FormData) : RequestType
-    return BodyJSFormData(formData);
+    return JSFormData(formData);
 #end
 
 
@@ -43,19 +43,19 @@ abstract RequestType(RequestTypeImpl) from RequestTypeImpl to RequestTypeImpl {
 enum RequestTypeImpl {
   // TODO JSON
   NoBody;
-  BodyString(s : String, ?encoding : String);
-  BodyBytes(b : Bytes);
-  BodyInput(s : Input);
+  Text(s : String, ?encoding : String);
+  Binary(b : Bytes);
+  Input(s : Input);
 #if thx_stream
-  BodyStream(e : Emitter<Bytes>); // TODO NodeJS: Stream of String with and without encoding
+  Stream(e : Emitter<Bytes>); // TODO NodeJS: Stream of String with and without encoding
 #end
 #if(nodejs || hxnodejs)
-  BodyJSBuffer(buffer : js.node.Buffer);
+  JSBuffer(buffer : js.node.Buffer);
   // TODO NodeJS pipes
 #elseif js
-  BodyJSArrayBufferView(buffer : js.html.ArrayBufferView);
-  BodyJSBlob(blob : js.html.Blob);
-  BodyJSDocument(doc : js.html.HTMLDocument);
-  BodyJSFormData(formData : js.html.FormData);
+  JSArrayBufferView(buffer : js.html.ArrayBufferView);
+  JSBlob(blob : js.html.Blob);
+  JSDocument(doc : js.html.HTMLDocument);
+  JSFormData(formData : js.html.FormData);
 #end
 }

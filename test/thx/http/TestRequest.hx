@@ -105,7 +105,7 @@ public function test404() {
   public function testStringBody() {
     var message = "request thx body",
         done = Assert.createAsync(),
-        info = new RequestInfo(Post, 'http://localhost:8081/json', BodyString('{"q":"$message"}'));
+        info = new RequestInfo(Post, 'http://localhost:8081/json', Text('{"q":"$message"}'));
     info.headers.add("Content-Type", "application/json");
 
     Request.make(info, ResponseTypeText)
@@ -123,7 +123,7 @@ public function test404() {
     var size = 100,
         message = Bytes.alloc(size),
         done = Assert.createAsync(),
-        info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyBytes(message));
+        info = new RequestInfo(Post, 'http://localhost:8081/raw', Binary(message));
 
     info.headers.add("Content-Type", "text/plain");
 
@@ -146,7 +146,7 @@ public function test404() {
         message = Bytes.alloc(size),
         done = Assert.createAsync(),
         input = new haxe.io.BytesInput(message),
-        info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyInput(input));
+        info = new RequestInfo(Post, 'http://localhost:8081/raw', Input(input));
 
     info.headers.add("Content-Type", "text/plain");
 
@@ -171,7 +171,7 @@ public function test404() {
         message = Bytes.alloc(size * chunks),
         done = Assert.createAsync(3000),
         emitter : Bus<Bytes> = new Bus(),
-        info = new RequestInfo(Post, 'http://localhost:8081/raw', BodyStream(emitter));
+        info = new RequestInfo(Post, 'http://localhost:8081/raw', Stream(emitter));
 
     info.headers.add("Content-Type", "text/plain");
 
