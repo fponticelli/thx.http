@@ -107,15 +107,15 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
     this.response = response;
     this.responseType = responseType;
     _body = switch responseType {
-      case ResponseTypeBytes:
+      case Binary:
         promiseOfBuffer(response).map(NodeJS.bufferToBytes);
-      case ResponseTypeJson:
+      case Json:
         promiseOfText(response).map(haxe.Json.parse);
-      case ResponseTypeText:
+      case Text:
         promiseOfText(response);
-      case ResponseTypeJSBuffer:
+      case JSBuffer:
         promiseOfBuffer(response);
-      case ResponseTypeNoBody:
+      case NoBody:
         promiseOfNil(response);
     };
   }

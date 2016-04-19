@@ -20,7 +20,7 @@ class TestRequest {
             "Agent" => "thx.http.Request"
           ]);
 
-    Request.make(info, ResponseTypeText)
+    Request.make(info, Text)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -35,7 +35,7 @@ public function test404() {
   var done = Assert.createAsync(300),
       info = new RequestInfo(Get, "http://localhost:8081/404", [ "Agent" => "thx.http.Request" ]);
 
-  Request.make(info, ResponseTypeText)
+  Request.make(info, Text)
     .response
     .flatMap(function(r) {
       Assert.equals(404, r.statusCode);
@@ -50,7 +50,7 @@ public function test404() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/404", [ "Agent" => "thx.http.Request" ]);
 
-    Request.make(info, ResponseTypeText)
+    Request.make(info, Text)
       .body
       .failure(function(_) Assert.pass())
       .success(function(e) Assert.fail("should never reach this point"))
@@ -61,7 +61,7 @@ public function test404() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/", [ "Agent" => "thx.http.Request" ]);
 
-    Request.make(info, ResponseTypeText)
+    Request.make(info, Text)
       .body
       .success(function(r) Assert.equals("OK", r))
       .failure(function(e) Assert.fail("should never reach this point"))
@@ -72,7 +72,7 @@ public function test404() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/headers", [ "Agent" => "thx.http.Request" ]);
 
-    Request.make(info, ResponseTypeJson)
+    Request.make(info, Json)
       .body
       .success(function(r) {
         Assert.equals("thx.http.Request", r.agent);
@@ -91,7 +91,7 @@ public function test404() {
         done = Assert.createAsync(),
         info = new RequestInfo(Post, 'http://localhost:8081/qs?q=$message', NoBody);
 
-    Request.make(info, ResponseTypeText)
+    Request.make(info, Text)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -108,7 +108,7 @@ public function test404() {
         info = new RequestInfo(Post, 'http://localhost:8081/json', Text('{"q":"$message"}'));
     info.headers.add("Content-Type", "application/json");
 
-    Request.make(info, ResponseTypeText)
+    Request.make(info, Text)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -130,7 +130,7 @@ public function test404() {
     for(i in 0...size)
       message.set(i, Math.floor(31 + Math.random() * 95));
 
-    Request.make(info, ResponseTypeText)
+    Request.make(info, Text)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -153,7 +153,7 @@ public function test404() {
     for(i in 0...size)
       message.set(i, Math.floor(31 + Math.random() * 95));
 
-    Request.make(info, ResponseTypeText)
+    Request.make(info, Text)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -192,7 +192,7 @@ public function test404() {
     thx.Timer.delay(function() emitter.end(), 50 * (chunks + 2));
     #end
 
-    Request.make(info, ResponseTypeText)
+    Request.make(info, Text)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -209,7 +209,7 @@ public function test404() {
             "Agent" => "thx.http.Request"
           ]);
 
-    Request.make(info, ResponseTypeNoBody)
+    Request.make(info, NoBody)
       .response
       .flatMap(function(r) {
         //Assert.same(r.body, ResponseBody.NoBody);
@@ -227,7 +227,7 @@ public function test404() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/json", ["Agent" => "thx.http.Request"]);
 
-    Request.make(info, ResponseTypeJson)
+    Request.make(info, Json)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -244,7 +244,7 @@ public function test404() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/", ["Agent" => "thx.http.Request"]);
 
-    Request.make(info, ResponseTypeBytes)
+    Request.make(info, Binary)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -263,7 +263,7 @@ public function test404() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/", ["Agent" => "thx.http.Request"]);
 
-    Request.make(info, ResponseTypeJSBuffer)
+    Request.make(info, JSBuffer)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);

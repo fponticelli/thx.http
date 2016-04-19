@@ -3,16 +3,16 @@ package thx.http;
 import thx.Nil;
 
 enum ResponseType<T> {
-  ResponseTypeBytes : ResponseType<haxe.io.Bytes>;
-  ResponseTypeNoBody : ResponseType<Nil>;
-  ResponseTypeText : ResponseType<String>;
-  ResponseTypeJson : ResponseType<Dynamic>;
+  Binary : ResponseType<haxe.io.Bytes>;
+  NoBody : ResponseType<Nil>;
+  Text : ResponseType<String>;
+  Json : ResponseType<Dynamic>;
 #if(nodejs || hxnodejs)
-  ResponseTypeJSBuffer : ResponseType<js.node.Buffer>;
+  JSBuffer : ResponseType<js.node.Buffer>;
   // TODO NodeJS pipes
 #elseif js
-  ResponseTypeArrayBuffer : ResponseType<js.html.ArrayBuffer>;
-  ResponseTypeBlob : ResponseType<js.html.Blob>;
-  ResponseTypeDocument : ResponseType<js.html.HTMLDocument>;
+  JSArrayBuffer : ResponseType<js.html.ArrayBuffer>;
+  JSBlob : ResponseType<js.html.Blob>;
+  JSDocument : ResponseType<js.html.HTMLDocument>;
 #end
 }
