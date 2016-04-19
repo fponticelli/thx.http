@@ -277,10 +277,10 @@ public function test404() {
   }
 #elseif js
 /*
-BodyJSArrayBufferView(buffer : js.html.ArrayBufferView);
-BodyJSBlob(blob : js.html.Blob);
-BodyJSDocument(doc : js.html.HTMLDocument); // TODO Document or HTMLDocument
-BodyJSFormData(formData : js.html.FormData);
+JSArrayBufferView(buffer : js.html.ArrayBufferView);
+JSBlob(blob : js.html.Blob);
+JSDocument(doc : js.html.HTMLDocument); // TODO Document or HTMLDocument
+JSFormData(formData : js.html.FormData);
 */
 
   public function testResponseTypeBlob() {
