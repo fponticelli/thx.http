@@ -1,7 +1,7 @@
 package thx.http;
 
 import haxe.io.Bytes;
-import thx.http.RequestBody;
+import thx.http.RequestType;
 import utest.Assert;
 using thx.http.Request;
 using thx.Arrays;

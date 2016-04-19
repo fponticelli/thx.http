@@ -1,7 +1,7 @@
 package thx.http;
 
 import haxe.io.Bytes;
-import thx.http.RequestBody;
+import thx.http.RequestType;
 using thx.promise.Promise;
 #if thx_stream
 using thx.stream.Emitter;
@@ -52,9 +52,9 @@ class RequestInfo {
   public var url : Url;
   public var headers : Headers;
   public var version : String;
-  public var body : RequestBody;
+  public var body : RequestType;
 
-  public function new(method : Method, url : Url, ?headers : Headers, ?body : RequestBody, ?version = "1.1") {
+  public function new(method : Method, url : Url, ?headers : Headers, ?body : RequestType, ?version = "1.1") {
     this.method = method;
     this.url = url;
     this.headers = null == headers ? Headers.empty() : headers;

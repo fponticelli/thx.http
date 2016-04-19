@@ -7,7 +7,7 @@ import js.node.Buffer;
 import haxe.io.Bytes;
 import thx.Objects;
 import thx.http.*;
-import thx.http.RequestBody;
+import thx.http.RequestType;
 using thx.promise.Promise;
 #if thx_stream
 using thx.stream.Bus;
@@ -48,7 +48,7 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
         reject(new HttpConnectionError(e.message));
       });
 
-      switch (requestInfo.body : RequestBodyImpl) {
+      switch (requestInfo.body : RequestTypeImpl) {
         case NoBody:
           req.end();
         case BodyString(s, null):
