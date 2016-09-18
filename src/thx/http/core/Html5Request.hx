@@ -4,7 +4,6 @@ import haxe.io.Bytes;
 import js.html.XMLHttpRequest;
 import thx.Nil;
 import thx.http.*;
-import thx.http.RequestBody;
 #if thx_stream
 import thx.stream.*;
 using thx.stream.Emitter;
@@ -17,25 +16,25 @@ class Html5Request<T> extends Request<T> {
   public static function make<T>(requestInfo : RequestInfo, responseType : ResponseType<T>) : Request<T> {
     var request = new XMLHttpRequest();
     request.responseType = switch responseType {
-      case ResponseTypeBytes: ARRAYBUFFER;
-      case ResponseTypeNoBody: NONE;
-      case ResponseTypeText: TEXT;
-      case ResponseTypeJson: JSON;
-      case ResponseTypeArrayBuffer: ARRAYBUFFER;
-      case ResponseTypeBlob: BLOB;
-      case ResponseTypeDocument: DOCUMENT;
+      case Binary: ARRAYBUFFER;
+      case NoBody: NONE;
+      case Text: TEXT;
+      case Json: JSON;
+      case JSArrayBuffer: ARRAYBUFFER;
+      case JSBlob: BLOB;
+      case JSDocument: DOCUMENT;
     };
     return new Html5Request(Promise.create(function(resolve : Response<T> -> Void, reject) {
       var promiseResponseBody = Promise.create(function(resolveBody, rejectBody) {
         request.addEventListener("load", function(e) {
           var body : Dynamic = switch responseType {
-            case ResponseTypeBytes: Bytes.ofData(request.response);
-            case ResponseTypeNoBody: Nil.nil;
-            case ResponseTypeText: request.response;
-            case ResponseTypeJson: request.response;
-            case ResponseTypeArrayBuffer: request.response;
-            case ResponseTypeBlob: request.response;
-            case ResponseTypeDocument: request.response;
+            case Binary: Bytes.ofData(request.response);
+            case NoBody: Nil.nil;
+            case Text: request.response;
+            case Json: request.response;
+            case JSArrayBuffer: request.response;
+            case JSBlob: request.response;
+            case JSDocument: request.response;
           };
           resolveBody(body);
         });
@@ -62,29 +61,29 @@ class Html5Request<T> extends Request<T> {
       request.open(requestInfo.method, requestInfo.url.toString());
 
       (requestInfo.headers : Array<Header>).map.fn(request.setRequestHeader(_.key, _.value));
-      var body : RequestBodyImpl = requestInfo.body;
+      var body : RequestType.RequestTypeImpl = requestInfo.body;
       switch body {
         case NoBody:
           request.send();
-        case BodyInput(i):
+        case Input(i):
           request.send(i.readAll().getData());
-        case BodyString(s, e):
+        case Text(s, e):
           request.send(s);
 #if thx_stream
-        case BodyStream(e):
+        case Stream(e):
           e.toPromise()
             .success(function(bytes) request.send(bytes.getData()))
             .failure(function(e) throw e);
 #end
-        case BodyBytes(b):
+        case Binary(b):
           request.send(b.getData()); // TODO needs conversion
-        case BodyJSFormData(formData):
+        case JSFormData(formData):
           request.send(formData);
-        case BodyJSDocument(doc):
+        case JSDocument(doc):
           request.send(doc);
-        case BodyJSBlob(blob):
+        case JSBlob(blob):
           request.send(blob);
-        case BodyJSArrayBufferView(arrayBufferView):
+        case JSArrayBufferView(arrayBufferView):
           request.send(arrayBufferView);
       }
     }), request);
