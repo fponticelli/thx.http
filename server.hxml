@@ -1,4 +1,9 @@
 -lib abe
+-lib express
+-lib thx.core
+-lib thx.promise
+-lib hxnodejs
+-lib jsrequire
 -cp test
 -js bin/test-server.js
 -main TestServer

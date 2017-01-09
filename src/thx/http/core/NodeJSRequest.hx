@@ -5,13 +5,14 @@ import js.node.Https;
 import js.node.http.IncomingMessage;
 import js.node.Buffer;
 import haxe.io.Bytes;
+import haxe.io.BytesInput;
+import haxe.io.Input;
 import thx.Objects;
 import thx.http.*;
 import thx.http.RequestType;
 using thx.promise.Promise;
 #if thx_stream
-using thx.stream.Bus;
-using thx.stream.Emitter;
+using thx.stream.Stream;
 #end
 
 class NodeJSRequest<T> extends thx.http.Request<T> {
@@ -55,17 +56,6 @@ class NodeJSRequest<T> extends thx.http.Request<T> {
           req.end(s);
         case Text(s, e):
           req.end(s, e);
-#if thx_stream
-        case Stream(e):
-          e.subscribe(
-            function(bytes) req.write(NodeJS.arrayBufferToBuffer(bytes.getData())),
-            function(cancelled) if(cancelled) {
-              throw "Http Stream cancelled";
-            } else {
-              req.end();
-            }
-          );
-#end
         case Input(i):
           var size = 8192,
               buf = Bytes.alloc(size),
@@ -113,6 +103,8 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
         promiseOfText(response).map(haxe.Json.parse);
       case Text:
         promiseOfText(response);
+      case Input:
+        promiseOfInput(response);
       case JSBuffer:
         promiseOfBuffer(response);
       case NoBody:
@@ -140,6 +132,12 @@ class NodeJSResponse<T> extends thx.http.Response<T> {
   var _body : Promise<T>;
   override function get_body() : Promise<T>
     return _body;
+
+  static function promiseOfInput(response : IncomingMessage) : Promise<Input> {
+    return promiseOfBuffer(response)
+      .map(NodeJS.bufferToBytes)
+      .map(function(b): haxe.io.Input return new haxe.io.BytesInput(b));
+  }
 
   static function promiseOfBuffer(response : IncomingMessage) : Promise<Buffer>
     // response.setEncoding(null); // tried this and it seems to encode the output as a string. The documentation says otherwise.

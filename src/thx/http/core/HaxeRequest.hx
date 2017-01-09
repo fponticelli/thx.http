@@ -3,15 +3,13 @@ package thx.http.core;
 import thx.Nil;
 import haxe.Http;
 import haxe.io.Bytes;
+import haxe.io.BytesInput;
 import thx.http.*;
-import thx.http.RequestBody;
+import thx.http.RequestType;
 using thx.Arrays;
 using thx.Functions;
 using thx.Strings;
 using thx.promise.Promise;
-#if thx_stream
-using thx.stream.Emitter;
-#end
 
 class HaxeRequest<T> extends Request<T> {
   public static function make<T>(requestInfo : RequestInfo, responseType : ResponseType<T>) : Request<T> {
@@ -28,10 +26,13 @@ class HaxeRequest<T> extends Request<T> {
     var promiseBody = Promise.create(function(resolve : Dynamic -> Void, reject) {
       request.onData = function(d : String) {
         resolve(switch responseType {
-          case ResponseTypeText:  d;
-          case ResponseTypeBytes: Bytes.ofString(d);
-          case ResponseTypeNoBody: Nil.nil;
-          case ResponseTypeJson: haxe.Json.parse(d);
+          case Text:   d;
+          case Binary: Bytes.ofString(d);
+          case NoBody: Nil.nil;
+          case Json:   haxe.Json.parse(d);
+          case Input:
+            var b = Bytes.ofString(d);
+            new BytesInput(b);
         });
       };
     });
@@ -55,19 +56,15 @@ class HaxeRequest<T> extends Request<T> {
             reject(new HttpConnectionError(msg)); // TODO better error
           };
           switch requestInfo.body {
-            case BodyString(s, _): // TODO encoding
+            case Text(s, _): // TODO encoding
               request.setPostData(s);
               send();
-            case BodyBytes(b):
+            case Binary(b):
               request.setPostData(b.toString());
               send();
-            case BodyInput(i):
+            case Input(i):
               request.setPostData(i.readAll().toString());
               send();
-#if thx_stream
-            case BodyStream(e):
-              throw "unable to use BodyStream payload with HaxeRequest";
-#end
             case NoBody: // do nothing
               send();
           }

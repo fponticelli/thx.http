@@ -7,8 +7,7 @@ using thx.http.Request;
 using thx.Arrays;
 using thx.Strings;
 #if thx_stream
-using thx.stream.Bus;
-using thx.stream.Emitter;
+using thx.stream.Stream;
 #end
 
 class TestRequest {
@@ -163,46 +162,7 @@ public function test404() {
       .failure(function(e) Assert.fail('$e'))
       .always(done);
   }
-#if(thx_stream && !(neko||cpp))
-  public function testStreamBody() {
-    var size = 10000,
-        chunks = 10,
-        messages = [for(i in 0...chunks) Bytes.alloc(size)],
-        message = Bytes.alloc(size * chunks),
-        done = Assert.createAsync(3000),
-        emitter : Bus<Bytes> = new Bus(),
-        info = new RequestInfo(Post, 'http://localhost:8081/raw', Stream(emitter));
 
-    info.headers.add("Content-Type", "text/plain");
-
-    messages.mapi(function(msg, j) {
-      for(i in 0...size) {
-        msg.set(i, Math.floor(31 + Math.random() * 95));
-        message.set(j * size + i, msg.get(i));
-      }
-      #if neko
-      emitter.pulse(msg);
-      #else
-      thx.Timer.delay(function() emitter.pulse(msg), 50 * (j + 1));
-      #end
-    });
-    #if neko
-    emitter.end();
-    #else
-    thx.Timer.delay(function() emitter.end(), 50 * (chunks + 2));
-    #end
-
-    Request.make(info, Text)
-      .response
-      .flatMap(function(r) {
-        Assert.equals(200, r.statusCode);
-        return r.body;
-      })
-      .success(function(r) Assert.same(message.toString(), r))
-      .failure(function(e) Assert.fail('$e'))
-      .always(done);
-  }
-#end
   public function testNoContent() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/nocontent", [
@@ -283,11 +243,11 @@ JSDocument(doc : js.html.HTMLDocument); // TODO Document or HTMLDocument
 JSFormData(formData : js.html.FormData);
 */
 
-  public function testResponseTypeBlob() {
+  public function testJSBlob() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/", ["Agent" => "thx.http.Request"]);
 
-    Request.make(info, ResponseTypeBlob)
+    Request.make(info, JSBlob)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -300,11 +260,11 @@ JSFormData(formData : js.html.FormData);
       .always(done);
   }
 
-  public function testResponseTypeArrayBuffer() {
+  public function testJSArrayBuffer() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/", ["Agent" => "thx.http.Request"]);
 
-    Request.make(info, ResponseTypeArrayBuffer)
+    Request.make(info, JSArrayBuffer)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);
@@ -317,11 +277,11 @@ JSFormData(formData : js.html.FormData);
       .always(done);
   }
 
-  public function testResponseTypeDocument() {
+  public function testJSDocument() {
     var done = Assert.createAsync(),
         info = new RequestInfo(Get, "http://localhost:8081/html", ["Agent" => "thx.http.Request"]);
 
-    Request.make(info, ResponseTypeDocument)
+    Request.make(info, JSDocument)
       .response
       .flatMap(function(r) {
         Assert.equals(200, r.statusCode);

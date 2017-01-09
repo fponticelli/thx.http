@@ -3,6 +3,7 @@ package thx.http;
 import thx.Functions;
 import thx.Error;
 import thx.promise.Promise;
+import haxe.io.Input;
 
 class Request<T> {
   public static function make<T>(requestInfo : RequestInfo, responseType : ResponseType<T>) : Request<T> {
@@ -26,6 +27,9 @@ class Request<T> {
 
   public static function getText(url : String) : Request<String>
     return get(url, Text);
+
+  public static function getInput(url : String) : Request<Input>
+    return get(url, Input);
 
   public static function get<T>(url : String, responseType : ResponseType<T>) : Request<T>
     return make(new RequestInfo(Get, url), responseType);

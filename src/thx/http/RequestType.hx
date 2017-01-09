@@ -2,9 +2,6 @@ package thx.http;
 
 import haxe.io.Bytes;
 import haxe.io.Input;
-#if thx_stream
-import thx.stream.Emitter;
-#end
 
 abstract RequestType(RequestTypeImpl) from RequestTypeImpl to RequestTypeImpl {
   @:from inline public static function fromString(s : String) : RequestType
@@ -18,10 +15,6 @@ abstract RequestType(RequestTypeImpl) from RequestTypeImpl to RequestTypeImpl {
 
   @:from inline public static function fromInput(i : Input) : RequestType
     return Input(i);
-#if thx_stream
-  @:from inline public static function fromStream(s : Emitter<Bytes>) : RequestType
-    return Stream(s);
-#end
 #if(nodejs || hxnodejs)
   @:from inline public static function fromJSBuffer(buffer : js.node.Buffer) : RequestType
     return JSBuffer(buffer);
@@ -46,9 +39,6 @@ enum RequestTypeImpl {
   Text(s : String, ?encoding : String);
   Binary(b : Bytes);
   Input(s : Input);
-#if thx_stream
-  Stream(e : Emitter<Bytes>); // TODO NodeJS: Stream of String with and without encoding
-#end
 #if(nodejs || hxnodejs)
   JSBuffer(buffer : js.node.Buffer);
   // TODO NodeJS pipes

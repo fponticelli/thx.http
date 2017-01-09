@@ -4,10 +4,6 @@ import haxe.io.Bytes;
 import js.html.XMLHttpRequest;
 import thx.Nil;
 import thx.http.*;
-#if thx_stream
-import thx.stream.*;
-using thx.stream.Emitter;
-#end
 using thx.Arrays;
 using thx.Functions;
 using thx.promise.Promise;
@@ -20,6 +16,7 @@ class Html5Request<T> extends Request<T> {
       case NoBody: NONE;
       case Text: TEXT;
       case Json: JSON;
+      case Input: ARRAYBUFFER;
       case JSArrayBuffer: ARRAYBUFFER;
       case JSBlob: BLOB;
       case JSDocument: DOCUMENT;
@@ -32,6 +29,7 @@ class Html5Request<T> extends Request<T> {
             case NoBody: Nil.nil;
             case Text: request.response;
             case Json: request.response;
+            case Input: new haxe.io.BytesInput(Bytes.ofData(request.response));
             case JSArrayBuffer: request.response;
             case JSBlob: request.response;
             case JSDocument: request.response;
@@ -69,12 +67,6 @@ class Html5Request<T> extends Request<T> {
           request.send(i.readAll().getData());
         case Text(s, e):
           request.send(s);
-#if thx_stream
-        case Stream(e):
-          e.toPromise()
-            .success(function(bytes) request.send(bytes.getData()))
-            .failure(function(e) throw e);
-#end
         case Binary(b):
           request.send(b.getData()); // TODO needs conversion
         case JSFormData(formData):

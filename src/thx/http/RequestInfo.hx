@@ -4,7 +4,7 @@ import haxe.io.Bytes;
 import thx.http.RequestType;
 using thx.promise.Promise;
 #if thx_stream
-using thx.stream.Emitter;
+using thx.stream.Stream;
 #end
 using thx.Strings;
 import thx.Url;
@@ -75,9 +75,6 @@ class RequestInfo {
       buf.push(h);
     switch body {
       case NoBody:
-#if thx_stream
-      case Stream(e): // TODO print something here?
-#end
       case Text(s, _):
         buf.push(Const.CRLF + s);
       case Binary(b):

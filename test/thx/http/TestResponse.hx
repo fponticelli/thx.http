@@ -7,8 +7,7 @@ using thx.http.Request;
 using thx.Arrays;
 using thx.Strings;
 #if thx_stream
-using thx.stream.Bus;
-using thx.stream.Emitter;
+using thx.stream.Stream;
 #end
 
 class TestResponse {
@@ -46,6 +45,17 @@ class TestResponse {
       .map(function(v) return v.toLowerCase())
       .success(function(r) Assert.equals("ok", r))
       .failure(function(e) Assert.fail("should never reach this point"))
+      .always(done);
+  }
+
+  public function testInput() {
+    var done = Assert.createAsync();
+
+    Request.getInput("http://localhost:8081/")
+      .body
+      .map(function(i: haxe.io.Input) return i.readString(2))
+      .success(function(r) Assert.equals("OK", r))
+      .failure(function(e) Assert.fail('should never reach this point: $e'))
       .always(done);
   }
 
